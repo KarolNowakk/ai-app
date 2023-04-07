@@ -15,7 +15,7 @@ class ChatInput extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       child: Container(
-        color: Colors.pink,
+        color: Colors.amber,
         padding: const EdgeInsets.all(8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -26,7 +26,7 @@ class ChatInput extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: getNextPrompt,
                     style: ElevatedButton.styleFrom(
-                      primary: Colors.pinkAccent,
+                      primary: Colors.amberAccent,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8.0),
                       ),
@@ -58,7 +58,7 @@ class ChatInput extends StatelessWidget {
                     controller.clear();
                   },
                   style: ElevatedButton.styleFrom(
-                    primary: Colors.pinkAccent,
+                    primary: Colors.amberAccent,
                     shape: const CircleBorder(),
                   ),
                   child: const Icon(Icons.send),

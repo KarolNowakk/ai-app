@@ -1,23 +1,26 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-const String url = "https://api.openai.com/v1/completions";
-const String apiKey = "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";
+const String url = "https://api.openai.com/v1/chat/completions";
+const String apiKey = "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";
 
 Future<String> sendOpenAIRequest(Map<String, dynamic> body) async {
   var response = await http.post(
     Uri.parse(url),
     headers: {
-      'Content-Type': 'application/json',
+      'Content-Type': 'application/json; charset=utf-8',
       'Authorization': 'Bearer $apiKey'
     },
     body: jsonEncode(body),
   );
 
-  print(response);
+  final codeUnits = response.body.codeUnits;
+
+  print(Utf8Decoder().convert(codeUnits));
+  print(response.statusCode);
 
   if (response.statusCode == 200) {
-    return response.body;
+    return Utf8Decoder().convert(codeUnits);
   }
 
   throw APIRequestErrorException(response.body);

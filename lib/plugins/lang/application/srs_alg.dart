@@ -1,9 +1,9 @@
 import 'dart:math';
 import 'dart:collection';
 import 'package:app2/plugins/lang/application/prompter.dart';
-import 'package:app2/plugins/lang/screens/rate_modal.dart';
-import 'package:app2/plugins/lang/screens/save_word_modal.dart';
-import 'word_structure.dart';
+import 'package:app2/plugins/lang/screens/exercises/rate_modal.dart';
+import 'package:app2/plugins/lang/screens/exercises/save_word_modal.dart';
+import '../domain/word_structure.dart';
 
 class SRSAlg implements SRSAlgInterface, SRSUpdateInterface, CreateInitialSRSWordDataInterface {
   final double _easeFactorConstant = 0.1;
@@ -12,12 +12,13 @@ class SRSAlg implements SRSAlgInterface, SRSUpdateInterface, CreateInitialSRSWor
   final int _initialInterval = 1;
   final int _secondInterval = 6;
 
-  SplayTreeSet<WordData> _reviewQueue = SplayTreeSet<WordData>(
+  final SplayTreeSet<WordData> _reviewQueue = SplayTreeSet<WordData>(
         (a, b) => a.nextReview.compareTo(b.nextReview),
   );
 
   @override
   void setAll(List<WordData> list) {
+    print(list);
     _reviewQueue.addAll(list);
   }
 
@@ -28,12 +29,14 @@ class SRSAlg implements SRSAlgInterface, SRSUpdateInterface, CreateInitialSRSWor
     DateTime currentTime = DateTime.now();
     WordData wordData = _reviewQueue.first;
 
+    print(wordData);
+    return wordData;
     if (currentTime.isAfter(wordData.nextReview)) {
       _reviewQueue.remove(wordData);
       return wordData;
-    } else {
-      return null;
     }
+
+    return null;
   }
 
   @override

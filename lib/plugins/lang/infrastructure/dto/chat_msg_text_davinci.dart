@@ -1,4 +1,4 @@
-class TextCompletion {
+class ChatMsgTextDavinci {
   String id;
   String object;
   int created;
@@ -6,7 +6,7 @@ class TextCompletion {
   List<TextCompletionChoice> choices;
   TextCompletionUsage usage;
 
-  TextCompletion(
+  ChatMsgTextDavinci(
       {required this.id,
         required this.object,
         required this.created,
@@ -14,8 +14,8 @@ class TextCompletion {
         required this.choices,
         required this.usage});
 
-  factory TextCompletion.fromJson(Map<String, dynamic> json) {
-    return TextCompletion(
+  factory ChatMsgTextDavinci.fromJson(Map<String, dynamic> json) {
+    return ChatMsgTextDavinci(
       id: json['id'],
       object: json['object'],
       created: json['created'],

@@ -1,7 +1,9 @@
-import 'package:app2/plugins/lang/application/word_structure.dart';
+import 'package:app2/plugins/lang/domain/settings_structure.dart';
+import 'package:app2/plugins/lang/domain/word_structure.dart';
 
 abstract class PrompterInterface {
   Future<PrompterResult> getPrompt();
+  Future<List<Message>> getInitialMessages();
   void init();
 }
 

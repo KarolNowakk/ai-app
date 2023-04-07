@@ -36,6 +36,7 @@ class Message extends StatelessWidget {
               fontWeight: FontWeight.normal,
               fontSize: 16,
               decoration: TextDecoration.none,
+            // fontFamily: "NotoSans",
           ),
           onSelectionChanged: (a, b) {
               String selectedText = a.textInside(text);

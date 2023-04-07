@@ -32,4 +32,26 @@ class WordData {
   }
 
   DateTime get nextReview => lastReview.add(Duration(days: interval));
+
+  @override
+  String toString() {
+    return toJson().toString();
+  }
 }
+
+// {
+//   {
+//     "word": "immer",
+//     "lastReview": "2023-04-04T23:59:00:00Z",
+//     "interval": 6,
+//     "easeFactor": 0.5,
+//     "repetition": 12,
+//   },
+//   {
+//   "word": "nie",
+//   "lastReview": "2023-04-04T23:59:00:00Z",
+//   "interval": 6,
+//   "easeFactor": 0.5,
+//   "repetition": 12,
+//   }
+// }

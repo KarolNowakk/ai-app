@@ -1,10 +1,10 @@
-import 'package:app2/plugins/lang/application/word_structure.dart';
+import 'package:app2/plugins/lang/domain/word_structure.dart';
 import 'package:app2/plugins/lang/domain/prompter.dart';
 import 'package:kiwi/kiwi.dart';
-import 'settings_structure.dart';
+import '../domain/settings_structure.dart';
 
-abstract class ExercisesPromptSettingsInterface {
-  Future<SettingsForPrompter> getSettingsPrompt();
+abstract class CurrentExerciseSettingsInterface {
+  Future<ExerciseStructure?> getExerciseSettings();
 }
 
 abstract class WordsRepoPromptInterface {
@@ -17,7 +17,7 @@ abstract class SRSAlgInterface {
 }
 
 class Prompter implements PrompterInterface{
-  final ExercisesPromptSettingsInterface _promptRepo = KiwiContainer().resolve<ExercisesPromptSettingsInterface>();
+  final CurrentExerciseSettingsInterface _promptRepo = KiwiContainer().resolve<CurrentExerciseSettingsInterface>();
   final WordsRepoPromptInterface _wordsRepo = KiwiContainer().resolve<WordsRepoPromptInterface>();
   final SRSAlgInterface _srsAlg = KiwiContainer().resolve<SRSAlgInterface>();
 
@@ -29,9 +29,23 @@ class Prompter implements PrompterInterface{
   }
 
   @override
+  Future<List<Message>> getInitialMessages() async {
+    final settings = await _promptRepo.getExerciseSettings();
+    if (settings == null) {
+      throw Exception("fak dis");
+    }
+
+    return settings.messages;
+  }
+
+  @override
   Future<PrompterResult> getPrompt() async {
-    final settings = await _promptRepo.getSettingsPrompt();
-    String prompt = settings.prompt;
+    final settings = await _promptRepo.getExerciseSettings();
+    if (settings == null) {
+      throw Exception("fak dis");
+    }
+
+    String prompt = settings.text;
 
     WordData? wordUsed = null;
 

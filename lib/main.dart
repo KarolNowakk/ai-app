@@ -1,8 +1,12 @@
 import 'package:app2/plugins/lang/injection_container.dart';
-import 'package:app2/plugins/lang/screens/main_screen.dart';
+// import 'package:app2/plugins/lang/screens/main_screen.dart';
+import 'package:app2/plugins/lang/screens/prompt/select.dart';
+import 'package:dart_openai/openai.dart';
 import 'package:flutter/material.dart';
+import 'router.dart';
 
 void main() {
+  OpenAI.apiKey = "";
   setupLingApp();
   runApp(const MyApp());
 }
@@ -18,7 +22,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: ChatScreen(),
+      initialRoute: '/',
+      routes: appRoutes,
     );
   }
 }

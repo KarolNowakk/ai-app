@@ -1,5 +1,5 @@
-import 'package:app2/plugins/lang/application/word_structure.dart';
-import 'package:app2/plugins/lang/screens/chat_messages.dart';
+import 'package:app2/plugins/lang/domain/word_structure.dart';
+import 'package:app2/plugins/lang/screens/exercises/chat_messages.dart';
 import 'package:flutter/material.dart';
 import 'package:kiwi/kiwi.dart';
 

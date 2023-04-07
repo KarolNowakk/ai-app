@@ -1,4 +1,4 @@
-import 'package:app2/plugins/lang/application/word_structure.dart';
+import 'package:app2/plugins/lang/domain/word_structure.dart';
 import 'package:app2/plugins/lang/interfaces/word_excercises_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:kiwi/kiwi.dart';
