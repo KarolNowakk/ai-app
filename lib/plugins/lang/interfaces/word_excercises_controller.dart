@@ -3,13 +3,14 @@ import 'package:app2/plugins/lang/domain/AICommunicator.dart';
 import 'package:app2/plugins/lang/domain/prompter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:kiwi/kiwi.dart';
+import "package:dart_openai/openai.dart";
 
 abstract class RateWordModalInterface {
   void show(BuildContext context, WordData data);
 }
 
 class SendMsgResult {
-  String sentence;
+  Stream<String> sentence;
   WordData? data;
 
   SendMsgResult({required this.sentence, required this.data});
@@ -22,12 +23,8 @@ class SendMsgResult {
 }
 
 class WordExercisesController {
-  WordData? _wordData = null;
-
-  final PrompterInterface _prompter =
-      KiwiContainer().resolve<PrompterInterface>();
-  final AICommunicatorInterface _aiCommunicator =
-      KiwiContainer().resolve<AICommunicatorInterface>();
+  final PrompterInterface _prompter = KiwiContainer().resolve<PrompterInterface>();
+  final AICommunicatorInterface _aiCommunicator = KiwiContainer().resolve<AICommunicatorInterface>();
 
   WordExercisesController() {
     _prompter.init();
@@ -39,31 +36,17 @@ class WordExercisesController {
   void resetConversation() {
     _prompter.getInitialMessages().then((value) {
       _aiCommunicator.setMessageList(value);
-    print("conversation kurwa zrresetowana do chuja pana");
     });
   }
 
-  Future<String> requestExercises() async {
-    PrompterResult promptResult = await _prompter.getPrompt();
+  Future<SendMsgResult> requestExercises() async {
+    PrompterResult promptResult = await _prompter.requestAnExercise();
+    Stream<String> result = _aiCommunicator.kindlyAskAI(promptResult.prompt);
 
-    String result = await _aiCommunicator.kindlyAskAI(promptResult.prompt);
-
-    _wordData = promptResult.wordUsed;
-
-    return result;
+    return SendMsgResult(sentence: result, data: promptResult.wordUsed);
   }
 
-  Future<SendMsgResult> sendAMessage(BuildContext context, String msg) async {
-    String result = await _aiCommunicator.kindlyAskAI(msg);
-
-    WordData? data = _wordData;
-
-    _resetWordStuff();
-
-    return SendMsgResult(sentence: result, data: data);
-  }
-
-  void _resetWordStuff() {
-    _wordData = null;
+  Stream<String> sendAMessage(BuildContext context, String msg) {
+    return _aiCommunicator.kindlyAskAI(msg);
   }
 }

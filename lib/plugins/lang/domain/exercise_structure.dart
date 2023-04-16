@@ -1,9 +1,11 @@
+import 'dart:convert';
+
 const userRole = "user";
 const systemRole = "system";
 const assistantRole = "assistant";
 
 class ExerciseStructure {
-  String id;
+  int id;
   String text;
   bool useSRS;
   String title;
@@ -23,7 +25,7 @@ class ExerciseStructure {
     return {
       'id': id,
       'text': text,
-      'useSRS': useSRS,
+      'use_srs': useSRS,
       'title': title,
       'messages': messageJsonList,
     };
@@ -37,10 +39,15 @@ class ExerciseStructure {
     return ExerciseStructure(
       id: json['id'],
       text: json['text'],
-      useSRS: json['useSRS'],
+      useSRS: json['use_srs'],
       title: json['title'],
       messages: messageList,
     );
+  }
+
+  String messagesToString() {
+    List<Map<String, dynamic>> messageJsonList = messages.map((message) => message.toJson()).toList();
+    return jsonEncode(messageJsonList);
   }
 }
 

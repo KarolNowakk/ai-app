@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
 const backgroundColor = Colors.black;
-const accentColor = Colors.amberAccent;
-const mainColor = Colors.amber;
+const accentColor = Colors.blueAccent;
+const mainColor = Colors.blue;
 const textColor = Colors.white;

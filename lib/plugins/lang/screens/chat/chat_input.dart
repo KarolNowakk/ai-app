@@ -1,3 +1,4 @@
+import 'package:app2/plugins/lang/screens/style/color.dart';
 import 'package:flutter/material.dart';
 
 class ChatInput extends StatelessWidget {
@@ -15,7 +16,7 @@ class ChatInput extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       child: Container(
-        color: Colors.amber,
+        color: mainColor,
         padding: const EdgeInsets.all(8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -26,7 +27,7 @@ class ChatInput extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: getNextPrompt,
                     style: ElevatedButton.styleFrom(
-                      primary: Colors.amberAccent,
+                      primary: accentColor,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8.0),
                       ),
@@ -58,7 +59,7 @@ class ChatInput extends StatelessWidget {
                     controller.clear();
                   },
                   style: ElevatedButton.styleFrom(
-                    primary: Colors.amberAccent,
+                    primary: accentColor,
                     shape: const CircleBorder(),
                   ),
                   child: const Icon(Icons.send),

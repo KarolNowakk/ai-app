@@ -1,8 +1,8 @@
 import 'dart:math';
 import 'dart:collection';
 import 'package:app2/plugins/lang/application/prompter.dart';
-import 'package:app2/plugins/lang/screens/exercises/rate_modal.dart';
-import 'package:app2/plugins/lang/screens/exercises/save_word_modal.dart';
+import 'package:app2/plugins/lang/screens/chat/rate_modal.dart';
+import 'package:app2/plugins/lang/screens/chat/save_word_modal.dart';
 import '../domain/word_structure.dart';
 
 class SRSAlg implements SRSAlgInterface, SRSUpdateInterface, CreateInitialSRSWordDataInterface {
@@ -29,8 +29,8 @@ class SRSAlg implements SRSAlgInterface, SRSUpdateInterface, CreateInitialSRSWor
     DateTime currentTime = DateTime.now();
     WordData wordData = _reviewQueue.first;
 
-    print(wordData);
-    return wordData;
+    // print(wordData);
+    // return wordData;
     if (currentTime.isAfter(wordData.nextReview)) {
       _reviewQueue.remove(wordData);
       return wordData;
@@ -59,6 +59,7 @@ class SRSAlg implements SRSAlgInterface, SRSUpdateInterface, CreateInitialSRSWor
     }
 
     return WordData(
+      id: wordData.id,
       word: wordData.word,
       lastReview: DateTime.now(),
       interval: newInterval,
@@ -75,6 +76,7 @@ class SRSAlg implements SRSAlgInterface, SRSUpdateInterface, CreateInitialSRSWor
     int initialRepetition = 0;
 
     return WordData(
+      id: 0,
       word: word,
       lastReview: currentDateTime,
       interval: initialInterval,

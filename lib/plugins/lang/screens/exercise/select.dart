@@ -1,4 +1,4 @@
-import 'package:app2/plugins/lang/domain/settings_structure.dart';
+import 'package:app2/plugins/lang/domain/exercise_structure.dart';
 import 'package:app2/plugins/lang/screens/style/color.dart';
 import 'package:flutter/material.dart';
 import 'package:kiwi/kiwi.dart';
@@ -107,7 +107,7 @@ class _ExerciseSelectorScreenState extends State<ExerciseSelectorScreen> {
               icon: const Icon(Icons.copy),
               onPressed: () {
                 ExerciseStructure exToCopy = _items[index];
-                exToCopy.id = "";
+                exToCopy.id = 0;
                 Navigator.pushNamed(context, '/exercise_creator', arguments: exToCopy);
               },
             ),

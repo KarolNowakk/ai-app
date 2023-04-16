@@ -1,8 +1,8 @@
-import 'package:app2/plugins/lang/domain/settings_structure.dart';
+import 'package:app2/plugins/lang/domain/exercise_structure.dart';
 import 'package:app2/plugins/lang/domain/word_structure.dart';
 
 abstract class PrompterInterface {
-  Future<PrompterResult> getPrompt();
+  Future<PrompterResult> requestAnExercise();
   Future<List<Message>> getInitialMessages();
   void init();
 }

@@ -1,4 +1,5 @@
 class WordData {
+  int id;
   String word;
   DateTime lastReview;
   int interval;
@@ -6,6 +7,7 @@ class WordData {
   int repetition;
 
   WordData({
+    required this.id,
     required this.word,
     required this.lastReview,
     required this.interval,
@@ -14,19 +16,21 @@ class WordData {
   });
 
   Map<String, dynamic> toJson() => {
+    'id': id,
     'word': word,
-    'lastReview': lastReview.toIso8601String(),
+    'last_review': lastReview.toIso8601String(),
     'interval': interval,
-    'easeFactor': easeFactor,
+    'ease_factor': easeFactor,
     'repetition': repetition,
   };
 
   factory WordData.fromJson(Map<String, dynamic> json) {
     return WordData(
+      id: json['id'],
       word: json['word'],
-      lastReview: DateTime.parse(json['lastReview']),
+      lastReview: DateTime.parse(json['last_review']),
       interval: json['interval'],
-      easeFactor: json['easeFactor'],
+      easeFactor: json['ease_factor'],
       repetition: json['repetition'],
     );
   }

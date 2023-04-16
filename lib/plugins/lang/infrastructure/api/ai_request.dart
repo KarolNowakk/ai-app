@@ -16,11 +16,8 @@ Future<String> sendOpenAIRequest(Map<String, dynamic> body) async {
 
   final codeUnits = response.body.codeUnits;
 
-  print(Utf8Decoder().convert(codeUnits));
-  print(response.statusCode);
-
   if (response.statusCode == 200) {
-    return Utf8Decoder().convert(codeUnits);
+    return const Utf8Decoder().convert(codeUnits);
   }
 
   throw APIRequestErrorException(response.body);

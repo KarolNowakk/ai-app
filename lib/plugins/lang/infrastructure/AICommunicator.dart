@@ -1,24 +1,24 @@
-import "package:app2/plugins/lang/domain/AICommunicator.dart";
-import "package:app2/plugins/lang/domain/settings_structure.dart";
-import "package:app2/plugins/lang/infrastructure/dto/chat_msg_gtp.dart";
-import "package:app2/plugins/lang/infrastructure/dto/chat_msg_text_davinci.dart";
-import "package:dart_openai/openai.dart";
-import "api/ai_request.dart";
-import "dart:convert";
+import "dart:async";
 
-// const String model = "text-davinci-003";
+import "package:app2/plugins/lang/application/config.dart";
+import "package:app2/plugins/lang/domain/AICommunicator.dart";
+import "package:app2/plugins/lang/domain/exercise_structure.dart";
+import "package:dart_openai/openai.dart";
+import "package:kiwi/kiwi.dart";
+
 const String gpt = "gpt-3.5-turbo";
 const String davinci = "text-davinci-003";
-const double temperature = 0.3;
+const String nwmCzy = "gpt-4";
+
+const double temperature = 0.9;
 const double frequencyPenalty = 0.5;
 const double presencePenalty = 0.5;
 const double topP = 1.0;
 const int maxTokens = 1024;
 
 class AICommunicator implements AICommunicatorInterface {
+  final Config _config = KiwiContainer().resolve<Config>();
   List<Message> messageHistory = [];
-
-  // bool _isFirstMessage = true;
 
   void addMessage(String role, String content) {
     messageHistory.add(Message(role: role, content: content));
@@ -26,22 +26,47 @@ class AICommunicator implements AICommunicatorInterface {
 
   @override
   void setMessageList(List<Message> msgList) {
+    print("msgList");
+    print(msgList);
+
     messageHistory = msgList;
   }
 
   @override
-  Future<String> kindlyAskAI(String prompt) async {
+  Stream<String> kindlyAskAI(String prompt) {
+    OpenAI.apiKey = _config.getEntry(openAIKey);
+
     addMessage(userRole, prompt);
 
-    OpenAIChatCompletionModel chatCompletion = await OpenAI.instance.chat.create(
+    Stream<OpenAIStreamChatCompletionModel> chatCompletion =
+    OpenAI.instance.chat.createStream(
       model: gpt,
+      temperature: temperature,
       messages: mapMessageListToChatModelList(messageHistory),
     );
 
-    String text = chatCompletion.choices.first.message.content;
-    addMessage(assistantRole, text);
+    StreamController<String> listUpdateController = StreamController<String>();
 
-    return text;
+    String wholeMessage = "";
+    chatCompletion.listen(
+          (chatStreamEvent) {
+        String text = chatStreamEvent.choices.first.delta.content ?? "";
+        wholeMessage += text;
+
+        listUpdateController.sink.add(text);
+      },
+      onDone: () {
+        addMessage(assistantRole, wholeMessage);
+        listUpdateController.close();
+      },
+      onError: (error) {
+        print("Error occurred: $error");
+      },
+    );
+
+    print(mapMessageListToChatModelList(messageHistory));
+
+    return listUpdateController.stream;
   }
 
   List<OpenAIChatCompletionChoiceMessageModel> mapMessageListToChatModelList(

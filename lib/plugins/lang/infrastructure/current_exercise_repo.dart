@@ -1,12 +1,11 @@
 import 'package:app2/plugins/lang/application/prompter.dart';
-import 'package:app2/plugins/lang/domain/settings_structure.dart';
-import 'package:app2/plugins/lang/screens/prompt/select.dart';
+import 'package:app2/plugins/lang/domain/exercise_structure.dart';
+import 'package:app2/plugins/lang/screens/exercise/select.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
 class CurrentExerciseRepo implements CurrentExerciseSettingsInterface, CurrentExerciseSaverInterface {
   final String _key = "current_exercise";
-  ExerciseStructure? _struct = null;
 
   @override
   Future<void> saveExerciseSettings(ExerciseStructure exercise) async {

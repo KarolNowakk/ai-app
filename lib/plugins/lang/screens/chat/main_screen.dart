@@ -1,5 +1,7 @@
 import 'package:app2/plugins/lang/domain/word_structure.dart';
 import 'package:app2/plugins/lang/interfaces/word_excercises_controller.dart';
+import 'package:app2/plugins/lang/screens/style/color.dart';
+import 'package:dart_openai/openai.dart';
 import 'package:flutter/material.dart';
 import 'package:kiwi/kiwi.dart';
 import 'chat_input.dart';
@@ -11,46 +13,53 @@ class ExercisesChatScreen extends StatefulWidget {
 }
 
 class _ExercisesChatScreenState extends State<ExercisesChatScreen> {
+  final WordExercisesController _controller = KiwiContainer().resolve<WordExercisesController>();
+  final RateWordModalInterface _wordModal = KiwiContainer().resolve<RateWordModalInterface>();
+  final SaveWordModalInterface _saveWordModalController = KiwiContainer().resolve<SaveWordModalInterface>();
+
   List<Message> messages = [];
-  bool _wasPromptJustSend = false;
+  WordData? _wordRecentlyUsed;
   TextEditingController textEditingController = TextEditingController();
   ScrollController scrollController = ScrollController();
-  final WordExercisesController _controller = KiwiContainer().resolve<
-      WordExercisesController>();
-  final RateWordModalInterface _wordModal = KiwiContainer().resolve<
-      RateWordModalInterface>();
 
   void getNextSentence() {
-    if (_wasPromptJustSend) {
-      addMessage(context, "First answer recently requested prompt", true);
-      return;
+    _controller.resetConversation();
+
+    WordData? recentlyUsed = _wordRecentlyUsed;
+    if (recentlyUsed != null) {
+      _wordModal.show(context, recentlyUsed);
     }
 
-    _controller.requestExercises().then((sentence) {
-      addMessage(context, sentence, true);
-      _wasPromptJustSend = true;
+    _controller.requestExercises().then((data) {
+      addStreamMessage(context, data.sentence, true);
+
+      _wordRecentlyUsed = data.data;
     });
   }
 
   void sendAMessage(String msg) {
-    addMessage(context, msg, false);
-    _controller.sendAMessage(context, msg).then((result) {
-      addMessage(context, result.sentence, true);
+    addTextMessage(context, msg, false);
 
-      WordData? data = result.data;
+    Stream<String> result = _controller.sendAMessage(context, msg);
 
-      print(result);
-      if (_wasPromptJustSend && data != null) {
-        _wordModal.show(context, data);
-      }
+    addStreamMessage(context, result, true);
+  }
 
-      _wasPromptJustSend = false;
+  void addTextMessage(BuildContext context, String msg, bool isAIMessage) {
+    setState(() {
+      messages.add(Message.text(text: msg, isUserMessage: isAIMessage));
+      Future.delayed(const Duration(milliseconds: 100), () {
+        scrollController.animateTo(
+            scrollController.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut);
+      });
     });
   }
 
-  void addMessage(BuildContext context, String msg, bool isAIMessage) {
+  void addStreamMessage(BuildContext context, Stream<String> msg, bool isAIMessage) {
     setState(() {
-      messages.add(Message(text: msg, isUserMessage: isAIMessage));
+      messages.add(Message.stream(textStream: msg, isUserMessage: isAIMessage));
       Future.delayed(const Duration(milliseconds: 100), () {
         scrollController.animateTo(
             scrollController.position.maxScrollExtent,
@@ -64,7 +73,7 @@ class _ExercisesChatScreenState extends State<ExercisesChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.amber,
+        backgroundColor: mainColor,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -72,9 +81,17 @@ class _ExercisesChatScreenState extends State<ExercisesChatScreen> {
             Navigator.of(context).pop();
           },
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: () {
+              _saveWordModalController.showSaveWordModal(context, "");
+            },
+          ),
+        ],
       ),
       body: Container(
-        color: Colors.black,
+        color: backgroundColor,
         child: Column(
           children: [
             Expanded(

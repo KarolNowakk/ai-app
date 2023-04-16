@@ -1,12 +1,11 @@
 import 'package:app2/plugins/lang/injection_container.dart';
-// import 'package:app2/plugins/lang/screens/main_screen.dart';
-import 'package:app2/plugins/lang/screens/prompt/select.dart';
 import 'package:dart_openai/openai.dart';
 import 'package:flutter/material.dart';
 import 'router.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() {
-  OpenAI.apiKey = "";
+Future main() async {
+  await dotenv.load(fileName: ".env");
   setupLingApp();
   runApp(const MyApp());
 }
