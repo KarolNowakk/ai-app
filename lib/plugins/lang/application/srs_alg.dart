@@ -5,7 +5,7 @@ import 'package:app2/plugins/lang/screens/chat/rate_modal.dart';
 import 'package:app2/plugins/lang/screens/chat/save_word_modal.dart';
 import '../domain/word_structure.dart';
 
-class SRSAlg implements SRSAlgInterface, SRSUpdateInterface, CreateInitialSRSWordDataInterface {
+class SRSAlg implements SRSAlgInterface, SRSUpdateInterface {
   final double _easeFactorConstant = 0.1;
   final double _easeFactorQualityMultiplier = 0.08;
   final double _easeFactorQualitySquaredMultiplier = 0.02;
@@ -18,7 +18,6 @@ class SRSAlg implements SRSAlgInterface, SRSUpdateInterface, CreateInitialSRSWor
 
   @override
   void setAll(List<WordData> list) {
-    print(list);
     _reviewQueue.addAll(list);
   }
 
@@ -29,8 +28,6 @@ class SRSAlg implements SRSAlgInterface, SRSUpdateInterface, CreateInitialSRSWor
     DateTime currentTime = DateTime.now();
     WordData wordData = _reviewQueue.first;
 
-    // print(wordData);
-    // return wordData;
     if (currentTime.isAfter(wordData.nextReview)) {
       _reviewQueue.remove(wordData);
       return wordData;
@@ -65,6 +62,9 @@ class SRSAlg implements SRSAlgInterface, SRSUpdateInterface, CreateInitialSRSWor
       interval: newInterval,
       easeFactor: newEaseFactor,
       repetition: newRepetition,
+      description: wordData.description,
+      lang: wordData.lang,
+      notSRS: wordData.notSRS,
     );
   }
 
@@ -76,12 +76,15 @@ class SRSAlg implements SRSAlgInterface, SRSUpdateInterface, CreateInitialSRSWor
     int initialRepetition = 0;
 
     return WordData(
-      id: 0,
+      id: "",
       word: word,
       lastReview: currentDateTime,
       interval: initialInterval,
       easeFactor: initialEaseFactor,
       repetition: initialRepetition,
+      description: "no desc",
+      lang: "german",
+      notSRS: false,
     );
   }
 }

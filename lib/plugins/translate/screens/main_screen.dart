@@ -1,28 +1,11 @@
 import 'package:app2/plugins/lang/domain/AICommunicator.dart';
 import 'package:app2/plugins/lang/domain/exercise_structure.dart' as exe;
-import 'package:app2/plugins/lang/interfaces/word_excercises_controller.dart';
+import 'package:app2/plugins/lang/screens/chat/chat_messages.dart' as save;
 import 'package:app2/plugins/lang/screens/chat/chat_messages.dart';
-import 'package:app2/plugins/lang/screens/style/color.dart';
 import 'package:app2/plugins/translate/screens/chat_input.dart';
-import 'package:dart_openai/openai.dart';
 import 'package:flutter/material.dart';
 import 'package:kiwi/kiwi.dart';
-
-class TestScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Test Screen')),
-      body: Center(
-        child: ConfigurableTextField(
-          controller: TextEditingController(),
-          hintText: 'Testing Text Field...',
-        ),
-      ),
-    );
-  }
-}
-
+// import 'package:app2/plugins/lang/screens/style/color.dart';
 
 const List<String> languages = [
   "Polish",
@@ -41,24 +24,30 @@ List<exe.Message> messagesForAI = [
 ];
 
 class TranslatorScreen extends StatefulWidget {
+  List<Message> messages = [];
+
   @override
   _TranslatorScreenState createState() => _TranslatorScreenState();
 }
 
 class _TranslatorScreenState extends State<TranslatorScreen> {
-  final SaveWordModalInterface _saveWordModalController =
-      KiwiContainer().resolve<SaveWordModalInterface>();
+  final GlobalKey _translationInputKey = GlobalKey();
+  bool showTranslationInput = true;
+
+  final save.SaveWordModalInterface _saveWordModalController =
+      KiwiContainer().resolve<save.SaveWordModalInterface>();
   final AICommunicatorInterface _ai =
       KiwiContainer().resolve<AICommunicatorInterface>();
   List<DropdownMenuItem<String>> listOfLanguages = [];
   String leftDropdown = "";
   String rightDropdown = "";
+  double _msgPadding = 280;
 
-  List<Message> messages = [];
   final TextEditingController _chatTextController = TextEditingController();
   final TextEditingController _wordTextController = TextEditingController();
   final TextEditingController _contextTextController = TextEditingController();
-
+  final FocusNode _wordTextFocusNode = FocusNode();
+  final FocusNode _contextTextFocusNode = FocusNode();
   ScrollController scrollController = ScrollController();
 
   @override
@@ -71,8 +60,27 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
       listOfLanguages.add(v);
     });
 
-    leftDropdown = "English";
+    leftDropdown = "German";
     rightDropdown = "Polish";
+  }
+
+  @override
+  void dispose() {
+    _wordTextFocusNode.dispose();
+    _contextTextFocusNode.dispose();
+    super.dispose();
+  }
+
+  void action() {
+    bool isContextTextFocused =
+        _contextTextFocusNode.hasFocus || _wordTextFocusNode.hasFocus;
+
+    if (isContextTextFocused || _chatTextController.text == "") {
+      translate();
+      return;
+    }
+
+    sendAMessage(_chatTextController.text);
   }
 
   void translate() {
@@ -95,7 +103,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
 
   void addTextMessage(BuildContext context, String msg, bool isAIMessage) {
     setState(() {
-      messages.add(Message.text(text: msg, isUserMessage: isAIMessage));
+      widget.messages.add(Message.text(text: msg, isAIMsg: isAIMessage, scrollToBottom: scrollToBottom));
       Future.delayed(const Duration(milliseconds: 100), () {
         scrollController.animateTo(scrollController.position.maxScrollExtent,
             duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
@@ -106,7 +114,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   void addStreamMessage(
       BuildContext context, Stream<String> msg, bool isAIMessage) {
     setState(() {
-      messages.add(Message.stream(textStream: msg, isUserMessage: isAIMessage));
+      widget.messages.add(Message.stream(textStream: msg, isAIMsg: isAIMessage, scrollToBottom: scrollToBottom,));
       Future.delayed(const Duration(milliseconds: 100), () {
         scrollController.animateTo(scrollController.position.maxScrollExtent,
             duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
@@ -114,10 +122,41 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     });
   }
 
+  void _togglePadding() {
+    setState(() {
+      _msgPadding = _msgPadding == 280 ? 70.0 : 280.0;
+    });
+  }
+
+  void changeLeftDropDownSelection(String value) {
+    setState(() {
+      leftDropdown = value;
+    });
+  }
+
+  void changeRightDropDownSelection(String value) {
+    setState(() {
+      rightDropdown = value;
+    });
+  }
+
+  void scrollToBottom() {
+    Future.delayed(const Duration(milliseconds: 10), () {
+      scrollController.animateTo(
+          scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 100),
+          curve: Curves.easeOut);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
-        backgroundColor: mainColor,
+        elevation: 0.0,
+        shadowColor: Colors.transparent,
+        backgroundColor: Theme.of(context).colorScheme.onBackground,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -135,26 +174,103 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
       ),
       body: Column(
         children: [
-          const SizedBox(height: 15),
+          TranslationInput(
+            key: _translationInputKey,
+            leftDropdown: leftDropdown,
+            rightDropdown: rightDropdown,
+            onLeftDropdownChange: changeLeftDropDownSelection,
+            onRightDropdownChange: changeRightDropDownSelection,
+            listOfLanguages: listOfLanguages,
+            wordTextController: _wordTextController,
+            contextTextController: _contextTextController,
+            wordTextFocusNode: _wordTextFocusNode,
+            contextTextFocusNode: _contextTextFocusNode,
+            paddingControl: _togglePadding,
+          ),
           Expanded(
-            flex: 4,
-            child: PhysicalModel(
-              color: Colors.transparent,
-              borderRadius: const BorderRadius.only(
-                bottomLeft: Radius.circular(30),
-                bottomRight: Radius.circular(30),
-              ),
-              elevation: 5,
-              child: Container(
-                padding: const EdgeInsets.only(
-                    left: 15, top: 0, right: 15, bottom: 15),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(30),
-                    bottomRight: Radius.circular(30),
-                  ),
-                ),
+            child: ListView.builder(
+              cacheExtent: 100,
+              itemCount: widget.messages.length,
+              controller: scrollController,
+              itemBuilder: (context, index) {
+                if (widget.messages.isNotEmpty) {
+                  return widget.messages[index];
+                }
+              },
+            ),
+          ),
+          Flex(
+            direction: Axis.vertical,
+            // height: 100,
+            children: [ChatInput(
+              controller: _chatTextController,
+              sendAMessage: action,
+            ),]
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class TranslationInput extends StatefulWidget {
+  String leftDropdown;
+  String rightDropdown;
+  Function(String) onLeftDropdownChange;
+  Function(String) onRightDropdownChange;
+  final List<DropdownMenuItem<String>> listOfLanguages;
+  final TextEditingController wordTextController;
+  final TextEditingController contextTextController;
+  final FocusNode wordTextFocusNode;
+  final FocusNode contextTextFocusNode;
+  final Function() paddingControl;
+
+  TranslationInput({
+    Key? key,
+    required this.leftDropdown,
+    required this.rightDropdown,
+    required this.onLeftDropdownChange,
+    required this.onRightDropdownChange,
+    required this.listOfLanguages,
+    required this.wordTextController,
+    required this.contextTextController,
+    required this.wordTextFocusNode,
+    required this.contextTextFocusNode,
+    required this.paddingControl,
+  }) : super(key: key);
+
+  @override
+  _TranslationInputState createState() => _TranslationInputState();
+}
+
+class _TranslationInputState extends State<TranslationInput> {
+  bool _isMinimized = false;
+  double _inputHeight = 230.0;
+
+  void _toggleMinimized() {
+    setState(() {
+      widget.paddingControl();
+      _isMinimized = !_isMinimized;
+      _inputHeight = _isMinimized ? 5.0 : 230.0;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return PhysicalModel(
+      color: Colors.transparent,
+      elevation: 5,
+      child: Container(
+        padding: const EdgeInsets.only(left: 15, top: 5, right: 15, bottom: 0),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.onBackground,
+        ),
+        child: Column(
+          children: [
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              height: _inputHeight,
+              child: SingleChildScrollView(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
@@ -163,140 +279,123 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
                       children: [
                         Expanded(
                           child: DropdownButton<String>(
-                            value: leftDropdown,
+                            dropdownColor: Theme.of(context).colorScheme.background,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 17,
+                            ),
+                            value: widget.leftDropdown,
                             isExpanded: true,
-                            items: listOfLanguages,
+                            items: widget.listOfLanguages,
                             onChanged: (value) {
-                              setState(() {
-                                leftDropdown = value ?? "Polish";
-                              });
+                              widget.onLeftDropdownChange(value ?? "Italian");
+                              // setState(() {
+                              //   widget.leftDropdown = value ?? "Polish";
+                              // });
                             },
                           ),
                         ),
                         SizedBox(
                           width: 80,
                           child: IconButton(
-                            icon: const Icon(Icons.swap_horiz),
+                            icon: const Icon(
+                              Icons.swap_horiz,
+                              color: Colors.white,
+                            ),
                             onPressed: () {
-                              String temp = leftDropdown;
-                              setState(() {
-                                leftDropdown = rightDropdown;
-                                rightDropdown = temp;
-                              });
+                              String temp = widget.leftDropdown;
+                              widget.onLeftDropdownChange(widget.rightDropdown);
+                              widget.onRightDropdownChange(temp);
                             },
                           ),
                         ),
                         Expanded(
                           child: DropdownButton<String>(
-                            value: rightDropdown,
+                            dropdownColor: Theme.of(context).colorScheme.background,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 17,
+                            ),
+                            value: widget.rightDropdown,
                             isExpanded: true,
-                            items: listOfLanguages,
+                            items: widget.listOfLanguages,
                             onChanged: (value) {
-                              setState(() {
-                                rightDropdown = value ?? "Italian";
-                              });
+                              widget.onRightDropdownChange(value ?? "Italian");
                             },
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 10),
-                    Container(
-                      child: ConfigurableTextField(
-                        controller: _wordTextController,
-                        hintText:
-                        'Word or sentence that you want to translate...',
-                      ),
-                    ),
                     const SizedBox(height: 15),
                     Container(
                       child: ConfigurableTextField(
-                        controller: _contextTextController,
+                        focusNode: widget.wordTextFocusNode,
+                        controller: widget.wordTextController,
                         hintText:
-                        'Provide context for translation if you want...',
+                            'Word or sentence that you want to translate...',
                       ),
                     ),
-                    const SizedBox(height: 10),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 45,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                          mainColor, // Set the button's background color to blue
-                        ),
-                        onPressed: () {
-                          translate();
-                        },
-                        child: const Text(
-                          'Translate',
-                          style: TextStyle(
-                            fontSize: 18,
-                          ),
-                        ),
+                    const SizedBox(height: 20),
+                    Container(
+                      child: ConfigurableTextField(
+                        focusNode: widget.contextTextFocusNode,
+                        controller: widget.contextTextController,
+                        hintText:
+                            'Provide context for translation if you want...',
                       ),
                     ),
                   ],
                 ),
               ),
             ),
-          ),
-          Expanded(
-            flex: 7,
-            child: Container(
-              // color: Colors.white,
-              child: Column(
-                children: [
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: messages.length,
-                      itemBuilder: (context, index) {
-                        return messages[index];
-                      },
-                      controller: scrollController,
-                    ),
-                  ),
-                  ChatInput(
-                    controller: _chatTextController,
-                    sendAMessage: sendAMessage,
-                  ),
-                ],
+            IconButton(
+              onPressed: _toggleMinimized,
+              icon: Icon(
+                _isMinimized
+                    ? Icons.keyboard_arrow_down
+                    : Icons.keyboard_arrow_up,
+                color: Colors.white,
+                size: 40,
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
-
 }
 
 class ConfigurableTextField extends StatelessWidget {
   final TextEditingController controller;
   final String hintText;
+  final FocusNode focusNode;
 
   ConfigurableTextField({
     required this.controller,
     required this.hintText,
+    required this.focusNode,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextField(
       controller: controller,
+      focusNode: focusNode,
       maxLines: null,
-      style: TextStyle(fontSize: 18, color: Colors.black), // Add the text color here
+      style: const TextStyle(fontSize: 18, color: Colors.white),
+      // Add the text color here
       decoration: InputDecoration(
         hintText: hintText,
+        hintStyle: const TextStyle(fontSize: 18, color: Color(0x80FFFFFF)),
         border: const OutlineInputBorder(
           borderSide: BorderSide(
-            color: Colors.black,
+            color: Colors.white,
             width: 1.0,
           ),
         ),
-        focusedBorder: const OutlineInputBorder(
+        focusedBorder: OutlineInputBorder(
           borderSide: BorderSide(
-            color: accentColor,
+            color: Theme.of(context).colorScheme.background,
             width: 2.0,
           ),
         ),

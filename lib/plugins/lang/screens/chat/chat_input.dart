@@ -1,7 +1,13 @@
-import 'package:app2/plugins/lang/screens/style/color.dart';
-import 'package:flutter/material.dart';
+import 'dart:developer';
 
-class ChatInput extends StatelessWidget {
+import 'package:app2/elements/record_button.dart';
+import 'package:app2/plugins/lang/application/audio_app/recorder.dart';
+import 'package:app2/plugins/lang/application/audio_app/speech_to_text.dart';
+import 'package:app2/theme.dart';
+import 'package:flutter/material.dart';
+import 'package:kiwi/kiwi.dart';
+
+class ChatInput extends StatefulWidget {
   final Function() getNextPrompt;
   final Function(String) sendAMessage;
   final TextEditingController controller;
@@ -13,62 +19,119 @@ class ChatInput extends StatelessWidget {
   });
 
   @override
+  State<ChatInput> createState() => _ChatInputState();
+}
+
+class _ChatInputState extends State<ChatInput> {
+  final FocusNode _focus = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    _focus.addListener(_onFocusChanged);
+  }
+
+  void _onFocusChanged() {
+    setState(() {});
+  }
+
+  void getTranscription(String transcription) async {
+    widget.controller.text = transcription;
+    log("HERE: ${widget.controller.text}");
+  }
+
+  void send() {
+    widget.sendAMessage(widget.controller.text);
+    widget.controller.clear();
+    _focus.unfocus();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Material(
+    return Expanded(
+      flex: 0,
       child: Container(
-        color: mainColor,
-        padding: const EdgeInsets.all(8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
+        color: DarkTheme.primary,
+        padding: const EdgeInsets.only(top: 10, bottom: 20, left: 20, right: 5),
+        child: Row(
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: getNextPrompt,
-                    style: ElevatedButton.styleFrom(
-                      primary: accentColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                    ),
-                    child: const Text("Get Next Sentence"),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: TextField(
+                  focusNode: _focus,
+                  controller: widget.controller,
+                  cursorColor: Colors.white,
+                  // Set cursor color to white
+                  style: const TextStyle(color: Colors.white),
+                  // Set font color to white
+                  decoration: const InputDecoration(
+                    focusColor: Colors.white,
+                    hintText: 'Type your message here...',
+                    hintStyle: TextStyle(color: DarkTheme.textColor),
+                    // Set hint text color to white
+                    border: InputBorder.none,
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: controller,
-                    decoration: const InputDecoration(
-                      hintText: 'Type your message here...',
-                    ),
-                    onSubmitted: (text) {
-                      sendAMessage(text);
-                      controller.clear();
-                    },
-                  ),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: () {
-                    sendAMessage(controller.text);
-                    controller.clear();
+                  onSubmitted: (text) {
+                    send();
+                    widget.controller.clear();
                   },
-                  style: ElevatedButton.styleFrom(
-                    primary: accentColor,
-                    shape: const CircleBorder(),
-                  ),
-                  child: const Icon(Icons.send),
+                  keyboardType: TextInputType.multiline,
+                  minLines: 1,
+                  maxLines: null,
                 ),
-              ],
+              ),
+            ),
+            IconButtonInput(
+              action: send,
+              icon: const Icon(
+                Icons.send,
+                color: DarkTheme.secondary,
+                size: 30,
+              ),
+            ),
+            _focus.hasFocus
+                ? const SizedBox.shrink()
+                : RecordButton(getTranscribedText: getTranscription),
+            _focus.hasFocus ? const SizedBox.shrink()
+                : IconButtonInput(
+              action: widget.getNextPrompt,
+              icon: const Icon(
+                Icons.replay,
+                color: DarkTheme.secondary,
+              ),
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+class IconButtonInput extends StatelessWidget {
+  const IconButtonInput({
+    super.key,
+    required this.action,
+    required this.icon,
+  });
+
+  final Function() action;
+  final Widget icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      style: TextButton.styleFrom(
+        side: BorderSide.none,
+        padding: EdgeInsets.zero,
+        textStyle: const TextStyle(
+          color: DarkTheme.textColor,
+        ),
+      ),
+      onPressed: () {
+        action();
+      },
+      child: icon,
     );
   }
 }

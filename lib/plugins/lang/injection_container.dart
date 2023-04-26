@@ -1,3 +1,5 @@
+import 'package:app2/plugins/lang/application/audio_app/recorder.dart';
+import 'package:app2/plugins/lang/application/audio_app/speech_to_text.dart';
 import 'package:app2/plugins/lang/application/config.dart';
 import 'package:app2/plugins/lang/application/prompter.dart';
 import 'package:app2/plugins/lang/domain/AICommunicator.dart';
@@ -26,7 +28,6 @@ void setupLingApp() {
 
   container.registerSingleton<SRSAlgInterface>((c) => SRSAlg());
   container.registerSingleton<SRSUpdateInterface>((c) => SRSAlg());
-  container.registerSingleton<CreateInitialSRSWordDataInterface>((c) => SRSAlg());
 
   container.registerSingleton<AICommunicatorInterface>((c) => AICommunicator());
 
@@ -48,4 +49,7 @@ void setupLingApp() {
 
   container.registerSingleton<ExerciseApiClient>((c) => ExerciseApiClient());
   container.registerSingleton<WordApiClient>((c) => WordApiClient());
+
+  container.registerSingleton<AudioRecorderInterface>((c) => AudioRecorder());
+  container.registerSingleton<SpeechToTextInterface>((c) => SpeechToText());
 }

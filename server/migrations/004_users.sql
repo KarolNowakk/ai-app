@@ -1,9 +1,0 @@
--- +goose Up
-CREATE TABLE IF NOT EXISTS users (
-     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-     email VARCHAR(255) NOT NULL UNIQUE,
-    provider VARCHAR(255) NOT NULL
-);
-
--- +goose Down
-DROP TABLE IF EXISTS users;

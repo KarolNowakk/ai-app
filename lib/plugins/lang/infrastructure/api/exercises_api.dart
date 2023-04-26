@@ -59,7 +59,7 @@ class ExerciseApiClient {
     }
   }
 
-  Future<void> delete(int exerciseId) async {
+  Future<void> delete(String exerciseId) async {
     final response = await http.delete(
       Uri.parse('$_baseUrl/exercises/delete/$exerciseId'),
       headers: _getHeaders(),

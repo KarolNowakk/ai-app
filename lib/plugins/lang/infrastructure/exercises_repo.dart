@@ -23,7 +23,7 @@ class ExerciseRepo implements ExercisesRepoInterface, ExerciseSaverRepoInterface
 
   @override
   void saveOrUpdateExercise(ExerciseStructure exercise) {
-    if (exercise.id != 0) {
+    if (exercise.id != "") {
       Map<String, dynamic> exerciseData = exercise.toJson();
       _api.update(exerciseData);
       return;

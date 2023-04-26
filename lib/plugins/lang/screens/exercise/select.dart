@@ -1,10 +1,12 @@
 import 'package:app2/plugins/lang/domain/exercise_structure.dart';
 import 'package:app2/plugins/lang/screens/style/color.dart';
+import 'package:app2/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:kiwi/kiwi.dart';
 
 abstract class ExercisesRepoInterface {
   Future<List<ExerciseStructure>> getAllExercises();
+
   void deleteExercise(ExerciseStructure exercise);
 }
 
@@ -41,14 +43,15 @@ class _ExerciseSelectorScreenState extends State<ExerciseSelectorScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
-        backgroundColor: mainColor,
+        elevation: 0,
+        backgroundColor: Theme.of(context).colorScheme.background,
         title: const Text('Choose your exercise.'),
       ),
       body: _buildListTiles(),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: accentColor,
+        backgroundColor: Theme.of(context).colorScheme.primary,
         onPressed: () {
           Navigator.pushNamed(context, '/exercise_creator');
         },
@@ -70,30 +73,48 @@ class _ExerciseSelectorScreenState extends State<ExerciseSelectorScreen> {
   Widget _buildListItem(
       ExerciseStructure item, int index, CurrentExerciseSaverInterface repo) {
     return Padding(
-      padding: const EdgeInsets.only(left: 10, top: 15, right: 10, bottom: 0),
-      child: ListTile(
-        shape: RoundedRectangleBorder(
-          borderRadius:
-              BorderRadius.circular(8.0), // Set the radius to 8.0 pixels
+      padding: const EdgeInsets.only(left: 10, top: 10, right: 10, bottom: 0),
+      child: Container(
+        decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 1,
+              offset: Offset(-3, 3),
+            )
+          ],
+          borderRadius: BorderRadius.circular(8.0),
+          color: Theme.of(context).colorScheme.primary,
         ),
-        tileColor: mainColor,
-        contentPadding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
-        title: Text(
-          item.title,
-          style: const TextStyle(color: textColor),
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
+        child: Row(
           children: [
+            Expanded(
+              child: GestureDetector(
+                onTap: () {
+                  repo.saveExerciseSettings(_items[index]).then((value) {
+                    Navigator.pushNamed(context, '/exercise');
+                  });
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(15.0),
+                  child: Text(
+                    item.title,
+                    style: const TextStyle(
+                        color: DarkTheme.textColor, fontSize: 16),
+                  ),
+                ),
+              ),
+            ),
             IconButton(
-              color: textColor,
+              color: Theme.of(context).colorScheme.secondary,
               icon: const Icon(Icons.edit),
               onPressed: () {
-                Navigator.pushNamed(context, '/exercise_creator', arguments: _items[index]);
+                Navigator.pushNamed(context, '/exercise_creator',
+                    arguments: _items[index]);
               },
             ),
             IconButton(
-              color: textColor,
+              color: Theme.of(context).colorScheme.secondary,
               icon: const Icon(Icons.delete),
               onPressed: () {
                 setState(() {
@@ -103,21 +124,17 @@ class _ExerciseSelectorScreenState extends State<ExerciseSelectorScreen> {
               },
             ),
             IconButton(
-              color: textColor,
+              color: Theme.of(context).colorScheme.secondary,
               icon: const Icon(Icons.copy),
               onPressed: () {
                 ExerciseStructure exToCopy = _items[index];
-                exToCopy.id = 0;
-                Navigator.pushNamed(context, '/exercise_creator', arguments: exToCopy);
+                exToCopy.id = "";
+                Navigator.pushNamed(context, '/exercise_creator',
+                    arguments: exToCopy);
               },
-            ),
+            )
           ],
         ),
-        onTap: () {
-          repo.saveExerciseSettings(_items[index]).then((value) {
-            Navigator.pushNamed(context, '/exercise');
-          });
-        },
       ),
     );
   }

@@ -25,10 +25,6 @@ class RatingModalController implements RateWordModalInterface{
       ),
     );
   }
-  //
-  // void dismiss(BuildContext context) {
-  //   Navigator.of(context).pop();
-  // }
 }
 
 class RatingModal extends StatefulWidget {
@@ -51,6 +47,9 @@ class _RatingModalState extends State<RatingModal> {
     });
 
     WordData data = widget._srsAlg.updateWordData(widget.data, rating);
+
+    print("wordData");
+    print(data);
 
     widget._wordRepo.updateWordDataInList(data);
 

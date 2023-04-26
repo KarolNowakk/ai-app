@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'package:app2/plugins/lang/screens/style/color.dart';
+import 'package:app2/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:kiwi/kiwi.dart';
+import 'dart:developer';
 
 abstract class SaveWordModalInterface {
   void showSaveWordModal(BuildContext context, String text);
@@ -11,15 +13,18 @@ abstract class SaveWordModalInterface {
 
 class Message extends StatefulWidget {
   final String? text;
+  String displayText = "";
   final Stream<String>? textStream;
-  final bool isUserMessage;
+  final bool isAIMsg;
+  final Function()scrollToBottom;
+  bool isStreamDone = false;
 
-  Message.text({Key? key, required this.text, required this.isUserMessage})
+  Message.text({Key? key, required this.text, required this.isAIMsg, required this.scrollToBottom})
       : textStream = null,
         super(key: key);
 
   Message.stream(
-      {Key? key, required this.textStream, required this.isUserMessage})
+      {Key? key, required this.textStream, required this.isAIMsg, required this.scrollToBottom})
       : text = null,
         super(key: key);
 
@@ -28,43 +33,82 @@ class Message extends StatefulWidget {
 }
 
 class _MessageState extends State<Message> {
-  final SaveWordModalInterface _saveWordModalController =
-      KiwiContainer().resolve<SaveWordModalInterface>();
-  String _text = "";
+  late Color color;
+  late EdgeInsets margin;
+  late Alignment alingment;
 
   @override
   void initState() {
     super.initState();
+    color = widget.isAIMsg
+        ? DarkTheme.primary // TODO: figure out why there is an error accessing Theme.of
+        : DarkTheme.secondary;
+    margin = widget.isAIMsg
+        ? const EdgeInsets.only(left: 10, top: 10, right: 70, bottom: 0)
+        : const EdgeInsets.only(left: 70, top: 10, right: 10, bottom: 0);
+    alingment = widget.isAIMsg ? Alignment.centerLeft : Alignment.centerRight;
+
     if (widget.text != null) {
-      _text = widget.text!;
+      widget.displayText = widget.text!;
+      return;
     }
+
+    if (widget.isStreamDone && widget.displayText != "") {
+        return;
+    }
+
+    try {
+      // very interesting, when there is exception in init state
+      // and you use it in list view builder, console will not tell you,
+      // and you might spend 4h on trying to figure out what is wrong with your code
+      _listenToStream();
+    } catch (e) {
+      widget.displayText = "There was an error on stream: ${e.toString()}" ;
+      color = Colors.redAccent;
+    }
+  }
+
+  void _listenToStream() {
     if (widget.textStream != null) {
       widget.textStream!.listen((data) {
         setState(() {
-          _text += data;
+          widget.displayText += data;
+          widget.scrollToBottom();
         });
+      }, onDone: () {
+        widget.isStreamDone = true;
       }, onError: (error) {
-        print('Error: $error');
+        log('Error: $error');
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return _buildMessage(_text, context);
+    return _buildMessage(widget.displayText, context);
   }
 
   Widget _buildMessage(String content, BuildContext context) {
     return Container(
-      alignment:
-          widget.isUserMessage ? Alignment.centerLeft : Alignment.centerRight,
-      margin: widget.isUserMessage
-          ? const EdgeInsets.only(left: 10, top: 10, right: 50, bottom: 10)
-          : const EdgeInsets.only(left: 50, top: 10, right: 10, bottom: 10),
+      alignment: alingment,
+      margin: margin,
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
       decoration: BoxDecoration(
-        color: widget.isUserMessage ? Colors.grey.withAlpha(200) : accentColor,
-        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            spreadRadius: 0,
+            blurRadius: 1,
+            offset: Offset(0, 4),
+          ),
+        ],
+        color: color,
+        borderRadius: BorderRadius.only(
+          topLeft: const Radius.circular(10),
+          bottomLeft: widget.isAIMsg ? const Radius.circular(0) : const Radius.circular(10),
+            topRight: const Radius.circular(10),
+          bottomRight: widget.isAIMsg ? const Radius.circular(10) : const Radius.circular(0)
+        ),
       ),
       child: ConstrainedBox(
         constraints: BoxConstraints(
@@ -72,18 +116,11 @@ class _MessageState extends State<Message> {
         child: SelectableText(
           content,
           style: const TextStyle(
-            color: Colors.white70,
+            color: Colors.white,
             fontWeight: FontWeight.normal,
             fontSize: 16,
             decoration: TextDecoration.none,
           ),
-
-          // just comment it out for now 
-          // onSelectionChanged: (a, b) {
-          //   String selectedText = a.textInside(content);
-          //   sleep(const Duration(seconds: 1));
-          //   _saveWordModalController.showSaveWordModal(context, selectedText);
-          // },
         ),
       ),
     );

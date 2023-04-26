@@ -1,5 +1,8 @@
+import 'package:app2/elements/infinity_button.dart';
+import 'package:app2/elements/text_field.dart';
 import 'package:app2/plugins/lang/domain/exercise_structure.dart';
-import 'package:app2/plugins/lang/screens/style/color.dart';
+import 'package:app2/elements/lang_dropdown.dart';
+import 'package:app2/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:kiwi/kiwi.dart';
 
@@ -11,15 +14,16 @@ class CreateExerciseScreen extends StatefulWidget {
   final ExerciseSaverRepoInterface _repo =
       KiwiContainer().resolve<ExerciseSaverRepoInterface>();
 
-  void onSave(ExerciseStructure? data, String title, nextMsgText, systemMsg,
+  void onSave(ExerciseStructure? data, String title, nextMsgText, systemMsg, lang,
       bool useSRS, List<Message> messages) {
     messages.insert(0, Message(role: systemRole, content: systemMsg));
 
     ExerciseStructure dataToSave = ExerciseStructure(
-        id: 0,
+        id: "",
         text: nextMsgText,
         useSRS: useSRS,
         title: title,
+        lang: lang,
         messages: messages,
     );
 
@@ -41,8 +45,17 @@ class _CreateExerciseScreenState extends State<CreateExerciseScreen> {
       TextEditingController();
   bool _checkBoxValue = false;
   bool _initialAlreadyCalled = false;
-
+  String _selectedLang = "german";
   final List<CustomTextFieldRow> _textFields = [];
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  void changeLang(String value) {
+    _selectedLang = value;
+  }
 
   void _addTextField({String? initialText, String? initialDropdownValue}) {
     setState(() {
@@ -68,6 +81,7 @@ class _CreateExerciseScreenState extends State<CreateExerciseScreen> {
       _textField1Controller.text = data.title;
       _textField2Controller.text = data.text;
       _checkBoxValue = data.useSRS;
+      _selectedLang = data.lang != "" ? data.lang : "german";
 
       data.messages.forEach((msg) {
         if (msg.role == systemRole) {
@@ -90,18 +104,20 @@ class _CreateExerciseScreenState extends State<CreateExerciseScreen> {
       setInitialValues(data);
     }
 
-    return Container(
-      color: backgroundColor,
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: mainColor,
-          title: const Text('Update or create new exercise.'),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.background,
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Theme.of(context).colorScheme.background,
+        title: const Text('Update or create new exercise.'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
         ),
-        body: SingleChildScrollView(
+      ),
+      body: Container(
+        color: Theme.of(context).colorScheme.background,
+        child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
@@ -110,93 +126,48 @@ class _CreateExerciseScreenState extends State<CreateExerciseScreen> {
                 const Text(
                   'Title of your exercise:',
                   style: TextStyle(
+                    color: DarkTheme.textColor,
                     fontSize: 18,
                   ),
                 ),
                 const SizedBox(height: 10.0),
-                TextField(
-                  controller: _textField1Controller,
-                  decoration: const InputDecoration(
-                    hintText: 'Title of your wonderful exercise...',
-                    border: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: textColor, // Change this to the desired color
-                        width: 1.0, // Change this to the desired width
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: accentColor, // Change this to the desired color
-                        width: 2.0, // Change this to the desired width
-                      ),
-                    ),
-                  ),
+                DefaultTextWidget(
+                    controller: _textField1Controller,
+                    hint: 'Title of your wonderful exercise...',
                 ),
                 const SizedBox(height: 30.0),
                 const Text(
                   'System message:',
                   style: TextStyle(
+                    color: DarkTheme.textColor,
                     fontSize: 18,
                   ),
                 ),
                 const SizedBox(height: 10.0),
-                TextField(
+                DefaultTextWidget(
                   controller: _systemMsgTextFieldController,
-                  maxLines: null,
-                  decoration: const InputDecoration(
-                    hintText: 'e.x. Now continue with next exercise.',
-                    border: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: textColor, // Change this to the desired color
-                        width: 1.0, // Change this to the desired width
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: accentColor, // Change this to the desired color
-                        width: 2.0, // Change this to the desired width
-                      ),
-                    ),
-                  ),
+                  hint: 'System message...',
                 ),
                 const SizedBox(height: 16.0),
                 const Text(
                   'Continue exercise text:',
                   style: TextStyle(
+                    color: DarkTheme.textColor,
                     fontSize: 18,
                   ),
                 ),
                 const SizedBox(height: 10.0),
-                TextField(
+                DefaultTextWidget(
                   controller: _textField2Controller,
-                  maxLines: null,
-                  decoration: const InputDecoration(
-                    hintText: 'e.x. Now continue with next exercise.',
-                    border: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: textColor, // Change this to the desired color
-                        width: 1.0, // Change this to the desired width
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: accentColor, // Change this to the desired color
-                        width: 2.0, // Change this to the desired width
-                      ),
-                    ),
-                  ),
+                  hint: 'e.x. Now continue with next exercise.',
                 ),
                 const SizedBox(height: 16.0),
                 Column(
                   children: _textFields,
                 ),
-                ElevatedButton(
+                InfinityButton(
                   onPressed: _addTextField,
-                  child: const Text('Add message'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        mainColor, // Set the button's background color to blue
-                  ),
+                  text: 'Add message',
                 ),
                 const SizedBox(height: 16.0),
                 Row(
@@ -218,42 +189,33 @@ class _CreateExerciseScreenState extends State<CreateExerciseScreen> {
                   ],
                 ),
                 const SizedBox(height: 16.0),
-                Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: Container(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            mainColor, // Set the button's background color to blue
-                      ),
-                      onPressed: () {
-                        List<Message> messages = [];
+                LangDropdown(
+                  onChange: changeLang,
+                  selectedLang: _selectedLang,
+                ),
+                const SizedBox(height: 16.0),
+                InfinityButton(
+                  text: 'Save',
+                  onPressed: () {
+                    List<Message> messages = [];
 
-                        for (var textField in _textFields) {
-                          textField.getData((text, dropdownValue) {
-                            messages.add(
-                                Message(role: dropdownValue, content: text));
-                          });
-                        }
+                    for (var textField in _textFields) {
+                      textField.getData((text, dropdownValue) {
+                        messages.add(
+                            Message(role: dropdownValue, content: text));
+                      });
+                    }
 
-                        widget.onSave(
-                            data,
-                            _textField1Controller.text,
-                            _textField2Controller.text,
-                            _systemMsgTextFieldController.text,
-                            _checkBoxValue,
-                            messages);
-                        Navigator.pop(context);
-                      },
-                      child: const Text(
-                        'Save',
-                        style: TextStyle(
-                          fontSize: 18,
-                        ),
-                      ),
-                    ),
-                  ),
+                    widget.onSave(
+                        data,
+                        _textField1Controller.text,
+                        _textField2Controller.text,
+                        _systemMsgTextFieldController.text,
+                        _selectedLang,
+                        _checkBoxValue,
+                        messages);
+                    Navigator.pop(context);
+                  },
                 )
               ],
             ),
@@ -327,25 +289,10 @@ class _CustomTextFieldRowState extends State<CustomTextFieldRow> {
           ).toList(),
         ),
         SizedBox(height: 2),
-        TextField(
-          decoration: const InputDecoration(
-            hintText: 'Title of your wonderful exercise...',
-            border: OutlineInputBorder(
-              borderSide: BorderSide(
-                color: textColor, // Change this to the desired color
-                width: 1.0, // Change this to the desired width
-              ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(
-                color: accentColor, // Change this to the desired color
-                width: 2.0, // Change this to the desired width
-              ),
-            ),
-          ),
-          controller: widget._textEditingController,
-          onChanged: widget.onTextChanged,
-        ),
+        DefaultTextWidget(
+            controller: widget._textEditingController,
+            hint: "Message content...",
+        )
       ],
     );
   }

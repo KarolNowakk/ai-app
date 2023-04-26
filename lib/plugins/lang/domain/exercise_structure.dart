@@ -5,10 +5,11 @@ const systemRole = "system";
 const assistantRole = "assistant";
 
 class ExerciseStructure {
-  int id;
+  String id;
   String text;
   bool useSRS;
   String title;
+  String lang;
   List<Message> messages;
 
   ExerciseStructure({
@@ -16,6 +17,7 @@ class ExerciseStructure {
     required this.text,
     required this.useSRS,
     required this.title,
+    required this.lang,
     required this.messages,
   });
 
@@ -27,6 +29,7 @@ class ExerciseStructure {
       'text': text,
       'use_srs': useSRS,
       'title': title,
+      'lang': lang,
       'messages': messageJsonList,
     };
   }
@@ -41,6 +44,7 @@ class ExerciseStructure {
       text: json['text'],
       useSRS: json['use_srs'],
       title: json['title'],
+      lang: json['lang'],
       messages: messageList,
     );
   }

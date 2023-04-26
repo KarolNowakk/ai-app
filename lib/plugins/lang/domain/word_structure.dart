@@ -1,10 +1,42 @@
+const List<String> supportedLanguages= [
+  "polish",
+  "german",
+  "english",
+  "spanish",
+  "italian",
+  "portuguese"
+];
+
+@override
+WordData createNewWordData(String word, description, lang) {
+  DateTime currentDateTime = DateTime.now();
+  int initialInterval = 1;
+  double initialEaseFactor = 2.5;
+  int initialRepetition = 0;
+
+  return WordData(
+    id: "",
+    word: word,
+    lastReview: currentDateTime,
+    interval: initialInterval,
+    easeFactor: initialEaseFactor,
+    repetition: initialRepetition,
+    description: description,
+    lang: lang,
+    notSRS: false,
+  );
+}
+
 class WordData {
-  int id;
+  String id;
   String word;
   DateTime lastReview;
   int interval;
   double easeFactor;
   int repetition;
+  String description;
+  String lang;
+  bool notSRS;
 
   WordData({
     required this.id,
@@ -13,6 +45,9 @@ class WordData {
     required this.interval,
     required this.easeFactor,
     required this.repetition,
+    required this.description,
+    required this.lang,
+    required this.notSRS,
   });
 
   Map<String, dynamic> toJson() => {
@@ -22,6 +57,9 @@ class WordData {
     'interval': interval,
     'ease_factor': easeFactor,
     'repetition': repetition,
+    'description': description,
+    'lang': lang,
+    'notSRS': notSRS,
   };
 
   factory WordData.fromJson(Map<String, dynamic> json) {
@@ -32,6 +70,9 @@ class WordData {
       interval: json['interval'],
       easeFactor: json['ease_factor'],
       repetition: json['repetition'],
+      description: json['description'],
+      lang: json['lang'],
+      notSRS: json['not_srs'],
     );
   }
 
@@ -42,20 +83,3 @@ class WordData {
     return toJson().toString();
   }
 }
-
-// {
-//   {
-//     "word": "immer",
-//     "lastReview": "2023-04-04T23:59:00:00Z",
-//     "interval": 6,
-//     "easeFactor": 0.5,
-//     "repetition": 12,
-//   },
-//   {
-//   "word": "nie",
-//   "lastReview": "2023-04-04T23:59:00:00Z",
-//   "interval": 6,
-//   "easeFactor": 0.5,
-//   "repetition": 12,
-//   }
-// }
