@@ -1,21 +1,19 @@
 import 'dart:developer';
-
-import 'package:app2/elements/record_button.dart';
-import 'package:app2/plugins/lang/application/audio_app/recorder.dart';
-import 'package:app2/plugins/lang/application/audio_app/speech_to_text.dart';
+import 'package:app2/shared/elements/record_button.dart';
 import 'package:app2/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:kiwi/kiwi.dart';
 
 class ChatInput extends StatefulWidget {
   final Function() getNextPrompt;
   final Function(String) sendAMessage;
   final TextEditingController controller;
+  final FocusNode focus;
 
   ChatInput({
     required this.getNextPrompt,
     required this.sendAMessage,
     required this.controller,
+    required this.focus,
   });
 
   @override
@@ -23,12 +21,11 @@ class ChatInput extends StatefulWidget {
 }
 
 class _ChatInputState extends State<ChatInput> {
-  final FocusNode _focus = FocusNode();
 
   @override
   void initState() {
     super.initState();
-    _focus.addListener(_onFocusChanged);
+    widget.focus.addListener(_onFocusChanged);
   }
 
   void _onFocusChanged() {
@@ -43,7 +40,7 @@ class _ChatInputState extends State<ChatInput> {
   void send() {
     widget.sendAMessage(widget.controller.text);
     widget.controller.clear();
-    _focus.unfocus();
+    widget.focus.unfocus();
   }
 
   @override
@@ -59,7 +56,7 @@ class _ChatInputState extends State<ChatInput> {
               child: Padding(
                 padding: const EdgeInsets.only(right: 8),
                 child: TextField(
-                  focusNode: _focus,
+                  focusNode: widget.focus,
                   controller: widget.controller,
                   cursorColor: Colors.white,
                   // Set cursor color to white
@@ -90,10 +87,10 @@ class _ChatInputState extends State<ChatInput> {
                 size: 30,
               ),
             ),
-            _focus.hasFocus
+            widget.focus.hasFocus
                 ? const SizedBox.shrink()
                 : RecordButton(getTranscribedText: getTranscription),
-            _focus.hasFocus ? const SizedBox.shrink()
+            widget.focus.hasFocus ? const SizedBox.shrink()
                 : IconButtonInput(
               action: widget.getNextPrompt,
               icon: const Icon(

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1071158348827",
+    "project_id": "aiassistant-edeec",
+    "storage_bucket": "aiassistant-edeec.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1071158348827:android:d64e01321c0eeb6555fcbe",
+        "android_client_info": {
+          "package_name": "com.karol.aiassistant"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1071158348827-tn582r8nk27sd9dv9as34m0th9e1umr7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB75AWuTvvjCGWe4elRVFKUD0m69B8_ZTs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1071158348827-tn582r8nk27sd9dv9as34m0th9e1umr7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

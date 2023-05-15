@@ -1,11 +1,19 @@
 import 'dart:math';
 import 'dart:collection';
-import 'package:app2/plugins/lang/application/prompter.dart';
-import 'package:app2/plugins/lang/screens/chat/rate_modal.dart';
-import 'package:app2/plugins/lang/screens/chat/save_word_modal.dart';
 import '../domain/word_structure.dart';
+import 'package:flutter/material.dart';
 
-class SRSAlg implements SRSAlgInterface, SRSUpdateInterface {
+abstract class RateWordModalInterface {
+  void show(BuildContext context, WordData data);
+}
+
+abstract class SRSAlgInterface {
+  void setAll(List<WordData> list);
+  WordData? getNextWord();
+  WordData updateWordData(WordData wordData, int quality);
+}
+
+class SRSAlg implements SRSAlgInterface {
   final double _easeFactorConstant = 0.1;
   final double _easeFactorQualityMultiplier = 0.08;
   final double _easeFactorQualitySquaredMultiplier = 0.02;
@@ -13,7 +21,7 @@ class SRSAlg implements SRSAlgInterface, SRSUpdateInterface {
   final int _secondInterval = 6;
 
   final SplayTreeSet<WordData> _reviewQueue = SplayTreeSet<WordData>(
-        (a, b) => a.nextReview.compareTo(b.nextReview),
+        (a, b) => a.nextReview.compareTo(b.nextReview)
   );
 
   @override
@@ -58,33 +66,13 @@ class SRSAlg implements SRSAlgInterface, SRSUpdateInterface {
     return WordData(
       id: wordData.id,
       word: wordData.word,
-      lastReview: DateTime.now(),
-      interval: newInterval,
+      nextReview: DateTime.now().add(Duration(days: newInterval)),
       easeFactor: newEaseFactor,
       repetition: newRepetition,
+      interval: newInterval,
       description: wordData.description,
       lang: wordData.lang,
       notSRS: wordData.notSRS,
-    );
-  }
-
-  @override
-  WordData createNewWordData(String word) {
-    DateTime currentDateTime = DateTime.now();
-    int initialInterval = 1;
-    double initialEaseFactor = 2.5;
-    int initialRepetition = 0;
-
-    return WordData(
-      id: "",
-      word: word,
-      lastReview: currentDateTime,
-      interval: initialInterval,
-      easeFactor: initialEaseFactor,
-      repetition: initialRepetition,
-      description: "no desc",
-      lang: "german",
-      notSRS: false,
     );
   }
 }

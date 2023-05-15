@@ -1,25 +1,34 @@
 import 'package:app2/plugins/lang/injection_container.dart';
+import 'package:app2/plugins/playground/injection_container.dart';
 import 'package:app2/plugins/words_lib/injection_container.dart';
+import 'package:app2/screens/auth/splash.dart';
+import 'package:app2/screens/auth/start.dart';
+import 'package:app2/shared/auth/domain/service.dart';
+import 'package:app2/shared/injection_container.dart';
 import 'package:app2/theme.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:kiwi/kiwi.dart';
 import 'router.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 Future main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
 
+  setupPlayground();
   setupLingApp();
   setupWordsLib();
+  setupSharedStuff();
 
-  requestPermissions();
-  runApp(const MyApp());
+  await Firebase.initializeApp();
+
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -38,21 +47,6 @@ class MyApp extends StatelessWidget {
           surface: DarkTheme.textColor,
           onSurface: DarkTheme.textColor,
         ),
-        textTheme: TextTheme(
-          displayLarge: DarkTheme.headlineTextStyle,
-          displaySmall: DarkTheme.buttonTextStyle,
-          bodyLarge: DarkTheme.bodyTextStyle,
-        ),
-        // textButtonTheme: TextButtonThemeData(
-        //   style: TextButton.styleFrom(
-        //     side: const BorderSide(color: DarkTheme.backgroundDarker, width: 2),
-        //     padding: EdgeInsets.zero,
-        //     textStyle: const TextStyle(
-        //       fontSize: 16,
-        //       color: DarkTheme.textColor,
-        //     ),
-        //   )
-        // ),
         checkboxTheme: CheckboxThemeData(
           fillColor: MaterialStateProperty.resolveWith<Color>(
                 (Set<MaterialState> states) {
@@ -73,15 +67,17 @@ class MyApp extends StatelessWidget {
           side: const BorderSide(color: DarkTheme.backgroundDarker, width: 2),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
         ),
+        textSelectionTheme: TextSelectionThemeData(
+          cursorColor: Colors.white,
+          selectionColor: Colors.white.withOpacity(0.5),
+          selectionHandleColor: Colors.white,
+        ),
       ),
       initialRoute: '/',
-      routes: appRoutes,
+      onGenerateRoute: route,
+      home: SplashScreen(),
     );
   }
 }
 
 
-Future<void> requestPermissions() async {
-  await Permission.microphone.request();
-  await Permission.storage.request();
-}

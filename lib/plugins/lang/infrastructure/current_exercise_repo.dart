@@ -1,10 +1,9 @@
-import 'package:app2/plugins/lang/application/prompter.dart';
+import 'package:app2/plugins/lang/application/current_ecercise_repo.dart';
 import 'package:app2/plugins/lang/domain/exercise_structure.dart';
-import 'package:app2/plugins/lang/screens/exercise/select.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
-class CurrentExerciseRepo implements CurrentExerciseSettingsInterface, CurrentExerciseSaverInterface {
+class CurrentExerciseRepo implements CurrentExerciseRepoInterface {
   final String _key = "current_exercise";
 
   @override

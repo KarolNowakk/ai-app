@@ -1,27 +1,26 @@
-import 'package:app2/plugins/lang/domain/AICommunicator.dart';
-import 'package:app2/plugins/lang/domain/exercise_structure.dart' as exe;
+import 'dart:developer';
+import 'package:app2/plugins/lang/domain/word_structure.dart';
 import 'package:app2/plugins/lang/screens/chat/chat_messages.dart' as save;
 import 'package:app2/plugins/lang/screens/chat/chat_messages.dart';
+import 'package:app2/plugins/playground/domain/ai_service.dart';
+import 'package:app2/plugins/playground/domain/conversation.dart' as conv;
 import 'package:app2/plugins/translate/screens/chat_input.dart';
 import 'package:flutter/material.dart';
 import 'package:kiwi/kiwi.dart';
-// import 'package:app2/plugins/lang/screens/style/color.dart';
 
-const List<String> languages = [
-  "Polish",
-  "English",
-  "German",
-  "Spanish",
-  "Italian"
-];
 
-List<exe.Message> messagesForAI = [
-  exe.Message(role: exe.systemRole, content: '''
-  You are a professional translator of all languages. Follow those rules:
-  1. If there are any bad words requested, just ignore them and explain meaning in the requested language without using bad words.
-  2. If you are asked to translate only one word add example sentences and explain different contexts.  
-'''),
-];
+conv.AIConversation translateConv = conv.AIConversation(
+  model: conv.AIConversation.gpt4,
+  temperature: 0.1,
+  topP: 0.1,
+  completionChoices: 1,
+  messages: [],
+);
+
+conv.Message translateSysMessage = conv.Message(
+    role: conv.Message.roleSystem,
+    content: 'Act as a very concise translator of all languages. If user asks for explaining, concisely explain. If that is a single word give a short example usage in sentence.'
+);
 
 class TranslatorScreen extends StatefulWidget {
   List<Message> messages = [];
@@ -36,44 +35,43 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
 
   final save.SaveWordModalInterface _saveWordModalController =
       KiwiContainer().resolve<save.SaveWordModalInterface>();
-  final AICommunicatorInterface _ai =
-      KiwiContainer().resolve<AICommunicatorInterface>();
+  final AIServiceInterface _ai =
+      KiwiContainer().resolve<AIServiceInterface>();
+
   List<DropdownMenuItem<String>> listOfLanguages = [];
   String leftDropdown = "";
   String rightDropdown = "";
-  double _msgPadding = 280;
+  double _msgPadding = 200;
 
   final TextEditingController _chatTextController = TextEditingController();
   final TextEditingController _wordTextController = TextEditingController();
-  final TextEditingController _contextTextController = TextEditingController();
   final FocusNode _wordTextFocusNode = FocusNode();
-  final FocusNode _contextTextFocusNode = FocusNode();
   ScrollController scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
 
-    languages.forEach((e) {
+    supportedLanguages.forEach((e) {
       DropdownMenuItem<String> v =
           DropdownMenuItem<String>(value: e, child: Text(e));
       listOfLanguages.add(v);
     });
 
-    leftDropdown = "German";
-    rightDropdown = "Polish";
+    leftDropdown = "german";
+    rightDropdown = "polish";
   }
 
   @override
   void dispose() {
     _wordTextFocusNode.dispose();
-    _contextTextFocusNode.dispose();
+    translateConv.messages?.clear();
     super.dispose();
   }
 
   void action() {
-    bool isContextTextFocused =
-        _contextTextFocusNode.hasFocus || _wordTextFocusNode.hasFocus;
+    log("chuj");
+    bool isContextTextFocused = _wordTextFocusNode.hasFocus;
 
     if (isContextTextFocused || _chatTextController.text == "") {
       translate();
@@ -84,21 +82,50 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   }
 
   void translate() {
-    String mes =
-        "Translate this word or sentence '${_wordTextController.text}' from '$leftDropdown' to $rightDropdown.";
+    List<conv.Message> messages = [
+      translateSysMessage,
+      conv.Message(
+        role: conv.Message.roleUser,
+        content: '$leftDropdown -> $rightDropdown: "${_wordTextController.text}"',
+      )
+    ];
 
-    if (_contextTextController.text != "") {
-      mes += " Word was used in this context: ${_contextTextController.text}";
-    }
-    _ai.setMessageList(messagesForAI);
-    Stream<String> data = _ai.kindlyAskAI(mes);
-    addStreamMessage(context, data, true);
+    translateConv.messages = messages;
+
+    askAI();
   }
 
   void sendAMessage(String msg) {
     addTextMessage(context, msg, false);
-    Stream<String> result = _ai.kindlyAskAI(msg);
+
+    translateConv.messages!.add(conv.Message(
+      role: conv.Message.roleUser,
+      content: msg,
+    ));
+
+    askAI();
+  }
+
+  void askAI() {
+    Stream<String> result = _ai.kindlyAskAI(translateConv);
     addStreamMessage(context, result, true);
+    _listenToStream(result);
+  }
+
+  void _listenToStream(Stream<String> stream) {
+      String text = "";
+      stream.listen((data) {
+        setState(() {
+          text += data;
+        });
+      }, onDone: () {
+        translateConv.messages!.add(conv.Message(
+          role: conv.Message.roleAssistant,
+          content: text,
+        ));
+      },onError: (error) {
+        log('Error: $error');
+      });
   }
 
   void addTextMessage(BuildContext context, String msg, bool isAIMessage) {
@@ -124,7 +151,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
 
   void _togglePadding() {
     setState(() {
-      _msgPadding = _msgPadding == 280 ? 70.0 : 280.0;
+      _msgPadding = _msgPadding == 200 ? 70.0 : 200.0;
     });
   }
 
@@ -182,9 +209,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
             onRightDropdownChange: changeRightDropDownSelection,
             listOfLanguages: listOfLanguages,
             wordTextController: _wordTextController,
-            contextTextController: _contextTextController,
             wordTextFocusNode: _wordTextFocusNode,
-            contextTextFocusNode: _contextTextFocusNode,
             paddingControl: _togglePadding,
           ),
           Expanded(
@@ -220,9 +245,7 @@ class TranslationInput extends StatefulWidget {
   Function(String) onRightDropdownChange;
   final List<DropdownMenuItem<String>> listOfLanguages;
   final TextEditingController wordTextController;
-  final TextEditingController contextTextController;
   final FocusNode wordTextFocusNode;
-  final FocusNode contextTextFocusNode;
   final Function() paddingControl;
 
   TranslationInput({
@@ -233,9 +256,7 @@ class TranslationInput extends StatefulWidget {
     required this.onRightDropdownChange,
     required this.listOfLanguages,
     required this.wordTextController,
-    required this.contextTextController,
     required this.wordTextFocusNode,
-    required this.contextTextFocusNode,
     required this.paddingControl,
   }) : super(key: key);
 
@@ -245,13 +266,13 @@ class TranslationInput extends StatefulWidget {
 
 class _TranslationInputState extends State<TranslationInput> {
   bool _isMinimized = false;
-  double _inputHeight = 230.0;
+  double _inputHeight = 130.0;
 
   void _toggleMinimized() {
     setState(() {
       widget.paddingControl();
       _isMinimized = !_isMinimized;
-      _inputHeight = _isMinimized ? 5.0 : 230.0;
+      _inputHeight = _isMinimized ? 5.0 : 130.0;
     });
   }
 
@@ -288,7 +309,7 @@ class _TranslationInputState extends State<TranslationInput> {
                             isExpanded: true,
                             items: widget.listOfLanguages,
                             onChanged: (value) {
-                              widget.onLeftDropdownChange(value ?? "Italian");
+                              widget.onLeftDropdownChange(value ?? "italian");
                               // setState(() {
                               //   widget.leftDropdown = value ?? "Polish";
                               // });
@@ -320,7 +341,7 @@ class _TranslationInputState extends State<TranslationInput> {
                             isExpanded: true,
                             items: widget.listOfLanguages,
                             onChanged: (value) {
-                              widget.onRightDropdownChange(value ?? "Italian");
+                              widget.onRightDropdownChange(value ?? "italian");
                             },
                           ),
                         ),
@@ -336,14 +357,6 @@ class _TranslationInputState extends State<TranslationInput> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    Container(
-                      child: ConfigurableTextField(
-                        focusNode: widget.contextTextFocusNode,
-                        controller: widget.contextTextController,
-                        hintText:
-                            'Provide context for translation if you want...',
-                      ),
-                    ),
                   ],
                 ),
               ),

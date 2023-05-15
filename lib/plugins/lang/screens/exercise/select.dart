@@ -1,24 +1,15 @@
+import 'package:app2/plugins/lang/application/current_ecercise_repo.dart';
+import 'package:app2/plugins/lang/application/exercise_repo.dart';
 import 'package:app2/plugins/lang/domain/exercise_structure.dart';
-import 'package:app2/plugins/lang/screens/style/color.dart';
 import 'package:app2/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:kiwi/kiwi.dart';
 
-abstract class ExercisesRepoInterface {
-  Future<List<ExerciseStructure>> getAllExercises();
-
-  void deleteExercise(ExerciseStructure exercise);
-}
-
-abstract class CurrentExerciseSaverInterface {
-  Future<void> saveExerciseSettings(ExerciseStructure exercise);
-}
-
 class ExerciseSelectorScreen extends StatefulWidget {
-  final ExercisesRepoInterface _exeRepo =
-      KiwiContainer().resolve<ExercisesRepoInterface>();
-  final CurrentExerciseSaverInterface _currentExeRepo =
-      KiwiContainer().resolve<CurrentExerciseSaverInterface>();
+  final ExerciseRepoInterface _exeRepo =
+      KiwiContainer().resolve<ExerciseRepoInterface>();
+  final CurrentExerciseRepoInterface _currentExeRepo =
+      KiwiContainer().resolve<CurrentExerciseRepoInterface>();
 
   @override
   _ExerciseSelectorScreenState createState() => _ExerciseSelectorScreenState();
@@ -71,7 +62,7 @@ class _ExerciseSelectorScreenState extends State<ExerciseSelectorScreen> {
   }
 
   Widget _buildListItem(
-      ExerciseStructure item, int index, CurrentExerciseSaverInterface repo) {
+      ExerciseStructure item, int index, CurrentExerciseRepoInterface repo) {
     return Padding(
       padding: const EdgeInsets.only(left: 10, top: 10, right: 10, bottom: 0),
       child: Container(
@@ -98,7 +89,7 @@ class _ExerciseSelectorScreenState extends State<ExerciseSelectorScreen> {
                 child: Padding(
                   padding: const EdgeInsets.all(15.0),
                   child: Text(
-                    item.title,
+                    item.conv.title ?? "some err",
                     style: const TextStyle(
                         color: DarkTheme.textColor, fontSize: 16),
                   ),
@@ -109,8 +100,7 @@ class _ExerciseSelectorScreenState extends State<ExerciseSelectorScreen> {
               color: Theme.of(context).colorScheme.secondary,
               icon: const Icon(Icons.edit),
               onPressed: () {
-                Navigator.pushNamed(context, '/exercise_creator',
-                    arguments: _items[index]);
+                Navigator.pushNamed(context, '/exercise_creator', arguments: _items[index]);
               },
             ),
             IconButton(
@@ -129,9 +119,8 @@ class _ExerciseSelectorScreenState extends State<ExerciseSelectorScreen> {
               onPressed: () {
                 ExerciseStructure exToCopy = _items[index];
                 exToCopy.id = "";
-                Navigator.pushNamed(context, '/exercise_creator',
-                    arguments: exToCopy);
-              },
+                Navigator.pushNamed(context, '/exercise_creator', arguments: exToCopy);
+                },
             )
           ],
         ),

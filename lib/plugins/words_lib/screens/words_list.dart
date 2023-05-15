@@ -1,4 +1,3 @@
-import 'package:app2/plugins/lang/screens/style/color.dart';
 import 'package:app2/plugins/words_lib/application/words_repo.dart';
 import 'package:app2/plugins/words_lib/screens/word_tile.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +6,9 @@ import 'package:app2/plugins/lang/domain/word_structure.dart';
 
 class WordsListScreen extends StatefulWidget {
   static const String route = "words_list";
+  String lang;
+
+  WordsListScreen({required this.lang});
 
   final WordsRepoInterface _wordsRepo = KiwiContainer().resolve<WordsRepoInterface>();
 
@@ -36,8 +38,7 @@ class _WordsListScreenState extends State<WordsListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    String lang = ModalRoute.of(context)!.settings.arguments as String;
-    _loadExercises(lang);
+    _loadExercises(widget.lang);
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
@@ -45,7 +46,7 @@ class _WordsListScreenState extends State<WordsListScreen> {
         elevation: 0.0,
         shadowColor: Colors.transparent,
         backgroundColor: Theme.of(context).colorScheme.background,
-        title: Text('List of words in $lang'),
+        title: Text('List of words in ${widget.lang}'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(15.0),

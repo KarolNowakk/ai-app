@@ -1,7 +1,7 @@
+import 'package:app2/plugins/lang/application/srs_alg.dart';
 import 'package:app2/plugins/lang/domain/word_structure.dart';
 import 'package:app2/plugins/lang/interfaces/word_excercises_controller.dart';
-import 'package:app2/plugins/lang/screens/style/color.dart';
-import 'package:dart_openai/openai.dart';
+import 'package:app2/shared/elements/audio_ai_message.dart';
 import 'package:flutter/material.dart';
 import 'package:kiwi/kiwi.dart';
 import 'chat_input.dart';
@@ -15,7 +15,7 @@ class ExercisesChatScreen extends StatefulWidget {
   final SaveWordModalInterface _saveWordModalController =
       KiwiContainer().resolve<SaveWordModalInterface>();
 
-  List<Message> messages = [];
+  List<Widget> messages = [];
 
   WordData? _wordRecentlyUsed;
 
@@ -25,6 +25,7 @@ class ExercisesChatScreen extends StatefulWidget {
 
 class _ExercisesChatScreenState extends State<ExercisesChatScreen> {
   final TextEditingController _textEditingController = TextEditingController();
+  final FocusNode _chatFieldFocus = FocusNode();
   late ScrollController _scrollController;
 
   @override
@@ -69,7 +70,7 @@ class _ExercisesChatScreenState extends State<ExercisesChatScreen> {
 
   void addStreamMessage(BuildContext context, Stream<String> msgStream, bool isAIMessage) {
       setState(() {
-        widget.messages.add(Message.stream(textStream: msgStream, isAIMsg: isAIMessage, scrollToBottom: scrollToBottom));
+        widget.messages.add(AudioAIMessage(textStream: msgStream, scrollToBottom: scrollToBottom));
       });
       scrollToBottom();
   }
@@ -111,16 +112,23 @@ class _ExercisesChatScreenState extends State<ExercisesChatScreen> {
         child: Column(
           children: [
             Expanded(
-              child: ListView.builder(
-                cacheExtent: 100,
-                itemCount: widget.messages.length,
-                itemBuilder: (context, index) {
-                  return widget.messages[index];
-                },
-                controller: _scrollController,
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: GestureDetector(
+                onTap: _chatFieldFocus.unfocus,
+                  child: ListView.builder(
+                    cacheExtent: 100,
+                    itemCount: widget.messages.length,
+                    itemBuilder: (context, index) {
+                      return widget.messages[index];
+                    },
+                    controller: _scrollController,
+                  ),
+                ),
               ),
             ),
             ChatInput(
+              focus: _chatFieldFocus,
               controller: _textEditingController,
               getNextPrompt: getNextSentence,
               sendAMessage: sendAMessage,

@@ -1,15 +1,8 @@
+import 'package:app2/plugins/lang/application/srs_alg.dart';
+import 'package:app2/plugins/lang/application/words_repo.dart';
 import 'package:app2/plugins/lang/domain/word_structure.dart';
-import 'package:app2/plugins/lang/interfaces/word_excercises_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:kiwi/kiwi.dart';
-
-abstract class SRSUpdateInterface {
-  WordData updateWordData(WordData wordData, int quality);
-}
-
-abstract class WordRepoUpdateInterface {
-  Future<void> updateWordDataInList(WordData updatedWordData);
-}
 
 class RatingModalController implements RateWordModalInterface{
   late String title;
@@ -29,8 +22,8 @@ class RatingModalController implements RateWordModalInterface{
 
 class RatingModal extends StatefulWidget {
   final WordData data;
-  final SRSUpdateInterface _srsAlg = KiwiContainer().resolve<SRSUpdateInterface>();
-  final WordRepoUpdateInterface _wordRepo = KiwiContainer().resolve<WordRepoUpdateInterface>();
+  final SRSAlgInterface _srsAlg = KiwiContainer().resolve<SRSAlgInterface>();
+  final WordsRepoInterface _wordRepo = KiwiContainer().resolve<WordsRepoInterface>();
 
   RatingModal({required this.data});
 
@@ -47,9 +40,6 @@ class _RatingModalState extends State<RatingModal> {
     });
 
     WordData data = widget._srsAlg.updateWordData(widget.data, rating);
-
-    print("wordData");
-    print(data);
 
     widget._wordRepo.updateWordDataInList(data);
 

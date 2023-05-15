@@ -1,4 +1,4 @@
-import 'package:app2/elements/record_button.dart';
+import 'package:app2/shared/elements/record_button.dart';
 import 'package:app2/theme.dart';
 import 'package:flutter/material.dart';
 

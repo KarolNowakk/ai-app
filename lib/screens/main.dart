@@ -1,11 +1,28 @@
 import 'package:app2/plugins/lang/application/config.dart';
-import 'package:app2/plugins/lang/screens/style/color.dart';
+import 'package:app2/plugins/playground/screens/main.dart';
 import 'package:app2/plugins/words_lib/screens/lang_select.dart';
 import 'package:app2/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:kiwi/kiwi.dart';
+import 'package:app2/macos/file_access.dart';
+import 'package:app2/macos/microphone_acces.dart';
+import 'package:permission_handler/permission_handler.dart';
+
+Future<void> requestPermissions(BuildContext context) async {
+  // Request microphone access permission on macOS
+  if (Theme.of(context).platform == TargetPlatform.macOS) {
+    await MicrophoneAccessMacOS.requestPermission();
+    await FileAccessMacOS.requestPermission();
+  } else {
+    // Request permissions for other platforms
+    await Permission.microphone.request();
+    await Permission.storage.request();
+    await Permission.manageExternalStorage.request();
+  }
+}
 
 class ExerciseHomeScreen extends StatefulWidget {
+  static const route = "home";
   final Config _configManager = KiwiContainer().resolve<Config>();
 
   ExerciseHomeScreen({Key? key}) : super(key: key);
@@ -25,16 +42,16 @@ class _ExerciseHomeScreenState extends State<ExerciseHomeScreen> {
       await widget._configManager.loadConfig();
     } on ConfigNotSetException catch (e) {
       print(e);
-      Navigator.pushNamed(context, '/config');
     }
   }
 
   @override
   Widget build(BuildContext context) {
     _loadConfig();
+    requestPermissions(context);
 
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: DarkTheme.background,
       appBar: AppBar(
         elevation: 0.0,
         shadowColor: Colors.transparent,
@@ -88,6 +105,17 @@ class _ExerciseHomeScreenState extends State<ExerciseHomeScreen> {
                       text: 'Words Library',
                       icon: Icon(
                         Icons.list_alt_rounded,
+                        color: DarkTheme.textColor,
+                        size: 70,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: OptionButton(
+                      route: PlaygroundScreen.route,
+                      text: 'Playground',
+                      icon: Icon(
+                        Icons.child_care,
                         color: DarkTheme.textColor,
                         size: 70,
                       ),

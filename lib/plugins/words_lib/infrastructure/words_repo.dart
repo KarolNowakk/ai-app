@@ -1,5 +1,3 @@
-import 'package:app2/plugins/lang/application/prompter.dart';
-import 'package:app2/plugins/lang/domain/exercise_structure.dart';
 import 'package:app2/plugins/lang/domain/word_structure.dart';
 import 'package:app2/plugins/lang/infrastructure/api/words_api.dart';
 import 'package:app2/plugins/words_lib/application/words_repo.dart';
@@ -7,7 +5,6 @@ import 'package:kiwi/kiwi.dart';
 
 class WordsRepo implements WordsRepoInterface{
   final WordApiClient _api = KiwiContainer().resolve<WordApiClient>();
-  // final CurrentExerciseSettingsInterface _exe = KiwiContainer().resolve<CurrentExerciseSettingsInterface>();
 
   @override
   Future<List<WordData>> getAllWords(String lang) async {

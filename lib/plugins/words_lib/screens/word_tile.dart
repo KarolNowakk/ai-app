@@ -119,7 +119,7 @@ class _WordDetailsState extends State<WordDetails> {
     WordData updatedWordData = WordData(
         id: widget.data.id,
         word: _titleController.text != "" ? _titleController.text : widget.data.word,
-        lastReview: widget.data.lastReview,
+        nextReview: widget.data.nextReview,
         interval: widget.data.interval,
         easeFactor: widget.data.easeFactor,
         repetition: widget.data.repetition,
@@ -129,8 +129,6 @@ class _WordDetailsState extends State<WordDetails> {
     );
 
     widget._repo.updateWord(updatedWordData);
-
-    print('Submitted: ${_descriptionController.text}, isChecked: $_isChecked');
   }
 
   @override

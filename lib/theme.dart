@@ -8,15 +8,6 @@ class DarkTheme {
   static const textColor = Color(0xFFcccdd1);
   static const error = Colors.redAccent;
 
-  // static const mainColor = Color(0xFF163832);
-  // static const textColor = Colors.white;
-
-  // 353b4b - background
-// 454d62 - msg
-  // 726dff - msg light
-// 303646 - background darker
-  //cccdd1 - text?
-
   static TextStyle headlineTextStyle = const TextStyle(
     fontSize: 24.0,
     fontWeight: FontWeight.bold,
@@ -27,10 +18,5 @@ class DarkTheme {
     fontSize: 16.0,
     // fontWeight: FontWeight.bold,
     color: textColor,
-  );
-
-  static TextStyle bodyTextStyle = TextStyle(
-    fontSize: 16.0,
-    color: Colors.black,
   );
 }

@@ -72,11 +72,7 @@ class _LangSelectorScreenState extends State<LangSelectorScreen> {
             Expanded(
               child: GestureDetector(
                 onTap: () {
-                  Navigator.pushNamed(
-                    context,
-                    WordsListScreen.route,
-                    arguments: item,
-                  );
+                  Navigator.pushNamed(context, WordsListScreen.route, arguments: item);
                 },
                 child: Padding(
                   padding: const EdgeInsets.all(15.0),

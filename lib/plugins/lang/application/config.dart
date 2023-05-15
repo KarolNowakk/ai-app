@@ -1,7 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 const String openAIKey = "open_ai_api_key";
-const String apiKey = "api_key";
+const String elevenLabsApiKey = "airtable_api_key";
 
 class Config {
   final Map<String, String> _config = {};
@@ -9,12 +9,12 @@ class Config {
   Future<void> loadConfig() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? openAIKeyValue = prefs.getString(openAIKey);
-    String? apiKeyValue = prefs.getString(apiKey);
+    String? elevenLabsApiKeyValue = prefs.getString(elevenLabsApiKey);
 
     _config[openAIKey] = openAIKeyValue ?? "";
-    _config[apiKey] = apiKeyValue ?? "";
+    _config[elevenLabsApiKey] = elevenLabsApiKeyValue ?? "";
 
-    if (_config[openAIKey] == "" || _config[apiKey] == "") {
+    if (_config[openAIKey] == "" || _config[elevenLabsApiKey] == "") {
       throw ConfigNotSetException();
     }
   }

@@ -1,13 +1,14 @@
+import 'dart:developer';
+
+import 'package:app2/plugins/lang/application/current_ecercise_repo.dart';
+import 'package:app2/plugins/lang/application/words_repo.dart';
 import 'package:app2/plugins/lang/domain/word_structure.dart';
-import 'package:app2/plugins/lang/domain/AICommunicator.dart';
-import 'package:app2/plugins/lang/domain/prompter.dart';
+import 'package:app2/plugins/lang/domain/exercise_structure.dart';
+import 'package:app2/plugins/playground/domain/ai_service.dart';
+import 'package:app2/plugins/playground/domain/conversation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:kiwi/kiwi.dart';
-import "package:dart_openai/openai.dart";
-
-abstract class RateWordModalInterface {
-  void show(BuildContext context, WordData data);
-}
+import 'package:app2/plugins/lang/application/srs_alg.dart';
 
 class SendMsgResult {
   Stream<String> sentence;
@@ -23,30 +24,77 @@ class SendMsgResult {
 }
 
 class WordExercisesController {
-  final PrompterInterface _prompter = KiwiContainer().resolve<PrompterInterface>();
-  final AICommunicatorInterface _aiCommunicator = KiwiContainer().resolve<AICommunicatorInterface>();
+  final AIServiceInterface _aiService = KiwiContainer().resolve<AIServiceInterface>();
+  late ExerciseStructure _exerciseStructure;
+  final CurrentExerciseRepoInterface _currentExeRepo = KiwiContainer().resolve<CurrentExerciseRepoInterface>();
+  final WordsRepoInterface _wordsRepo = KiwiContainer().resolve<WordsRepoInterface>();
+  final SRSAlgInterface _srsAlg = KiwiContainer().resolve<SRSAlgInterface>();
 
   WordExercisesController() {
-    _prompter.init();
-    _prompter.getInitialMessages().then((value) {
-      _aiCommunicator.setMessageList(value);
+    _wordsRepo.getAllWords().then((value) {
+      _srsAlg.setAll(value);
+    });
+
+    _currentExeRepo.getExerciseSettings().then((value) => {
+      _exerciseStructure = value!
     });
   }
 
   void resetConversation() {
-    _prompter.getInitialMessages().then((value) {
-      _aiCommunicator.setMessageList(value);
+    _currentExeRepo.getExerciseSettings().then((value) => {
+      _exerciseStructure = value!
     });
   }
 
   Future<SendMsgResult> requestExercises() async {
-    PrompterResult promptResult = await _prompter.requestAnExercise();
-    Stream<String> result = _aiCommunicator.kindlyAskAI(promptResult.prompt);
+    Message msg = _exerciseStructure.conv.messages!.removeLast();
 
-    return SendMsgResult(sentence: result, data: promptResult.wordUsed);
+    _exerciseStructure.conv.messages!.forEach((element) {
+      log(element.toString());
+    });
+
+    WordData? wordUsed;
+
+    if (_exerciseStructure.useSRS) {
+      final word = _srsAlg.getNextWord();
+      if (word != null) {
+        msg.content = '${msg.content}'
+            'Please use the following word: ${word.word}';
+
+        wordUsed = word;
+      }
+    }
+
+    _exerciseStructure.conv.messages!.add(msg);
+    Stream<String> result = _aiService.kindlyAskAI(_exerciseStructure.conv);
+
+    return SendMsgResult(sentence: result, data: wordUsed);
   }
 
   Stream<String> sendAMessage(BuildContext context, String msg) {
-    return _aiCommunicator.kindlyAskAI(msg);
+    _exerciseStructure.conv.temperature = _exerciseStructure.tempForLater;
+
+    Stream<String> stream = _aiService.kindlyAskAI(_exerciseStructure.conv);
+    _listenToStream(stream);
+
+    return stream;
+  }
+
+  void _listenToStream(Stream<String> stream) {
+    String text = "";
+    stream.listen((data) {
+        text += data;
+    }, onDone: () {
+      addMessage(Message.roleAssistant, text);
+    },onError: (error) {
+      log('Error: $error');
+    });
+  }
+
+  void addMessage(String role, String content) {
+    _exerciseStructure.conv.messages!.add(Message(
+        role: role,
+        content: content
+    ));
   }
 }

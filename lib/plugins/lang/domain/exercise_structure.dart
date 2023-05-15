@@ -1,84 +1,46 @@
 import 'dart:convert';
+import 'dart:developer';
 
-const userRole = "user";
-const systemRole = "system";
-const assistantRole = "assistant";
+import 'package:app2/plugins/playground/domain/conversation.dart';
 
-class ExerciseStructure {
-  String id;
-  String text;
+class ExerciseStructure{
+  String? id;
   bool useSRS;
-  String title;
   String lang;
-  List<Message> messages;
+  AIConversation conv;
+  // regular temp is used for the first message, and later this temp is used
+  // the idea is to avoid repeatable sentences that gpt is coming up with
+  // but for explaining gpt should be more precise
+  double tempForLater;
 
   ExerciseStructure({
-    required this.id,
-    required this.text,
+    this.id,
+    required this.tempForLater,
     required this.useSRS,
-    required this.title,
     required this.lang,
-    required this.messages,
+    required this.conv,
   });
 
   Map<String, dynamic> toJson() {
-    List<Map<String, dynamic>> messageJsonList = messages.map((message) => message.toJson()).toList();
+    Map<String, dynamic> asJson = conv.toJson();
 
-    return {
-      'id': id,
-      'text': text,
-      'use_srs': useSRS,
-      'title': title,
-      'lang': lang,
-      'messages': messageJsonList,
-    };
+    asJson['id'] = id;
+    asJson['use_srs'] = useSRS;
+    asJson['lang'] = lang;
+    asJson['temp_for_later'] = tempForLater;
+
+    return asJson;
   }
 
   static ExerciseStructure fromJson(Map<String, dynamic> json) {
-    List<dynamic> messageListJson = json['messages'];
-
-    List<Message> messageList = messageListJson.map((messageJson) => Message.fromJson(messageJson)).toList();
+    AIConversation conv = AIConversation.fromJson(json);
 
     return ExerciseStructure(
       id: json['id'],
-      text: json['text'],
       useSRS: json['use_srs'],
-      title: json['title'],
       lang: json['lang'],
-      messages: messageList,
+      tempForLater: json['temp_for_later'] ?? 0.1,
+      conv: conv,
     );
-  }
-
-  String messagesToString() {
-    List<Map<String, dynamic>> messageJsonList = messages.map((message) => message.toJson()).toList();
-    return jsonEncode(messageJsonList);
-  }
-}
-
-class Message {
-  String role;
-  String content;
-
-  Message({required this.role, required this.content});
-
-  Map<String, dynamic> toJson() {
-    return {
-      'role': role,
-      'content': content,
-    };
-  }
-
-  // Creates a message object from a JSON representation
-  static Message fromJson(Map<String, dynamic> json) {
-    return Message(
-      role: json['role'],
-      content: json['content'],
-    );
-  }
-
-  // Returns a string representation of the message object
-  @override
-  String toString() {
-    return '$role: $content';
   }
 }

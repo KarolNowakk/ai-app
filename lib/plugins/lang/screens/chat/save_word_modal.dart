@@ -1,10 +1,8 @@
-import 'package:app2/elements/infinity_button.dart';
-import 'package:app2/elements/text_field.dart';
+import 'package:app2/shared/elements/infinity_button.dart';
+import 'package:app2/shared/elements/text_field.dart';
 import 'package:app2/plugins/lang/domain/word_structure.dart';
 import 'package:app2/plugins/lang/screens/chat/chat_messages.dart';
-import 'package:app2/elements/lang_dropdown.dart';
-import 'package:app2/plugins/lang/screens/style/color.dart';
-import 'package:app2/theme.dart';
+import 'package:app2/shared/elements/lang_dropdown.dart';
 import 'package:flutter/material.dart';
 import 'package:kiwi/kiwi.dart';
 
@@ -51,7 +49,7 @@ class SaveWordModal extends StatelessWidget {
   }
 
   void save() {
-    WordData data = createNewWordData(
+    WordData data = WordData.createNewWordData(
         _textController.text,
       _descriptionController.text,
       _selectedLang,
