@@ -22,10 +22,12 @@ class AIService implements AIServiceInterface{
     );
 
 
-    log("------------------ ai_service -----------------");
-    conv.messages!.forEach((element) {
-      log(element.toString());
-    });
+    // log("------------------ ai_service -----------------");
+    // conv.messages!.forEach((element) {
+    //   log(element.toString());
+    //   log('TopP: ${conv.topP.toString()}');
+    //   log('Temp: ${conv.temperature.toString()}');
+    // });
 
     StreamController<String> listUpdateController = StreamController<String>.broadcast();
 
@@ -46,15 +48,15 @@ class AIService implements AIServiceInterface{
   }
 
   List<OpenAIChatCompletionChoiceMessageModel> mapMessageListToChatModelList(
-      List<Message> messageList) {
+      List<ChatCompletionMessage> messageList) {
     return messageList.map((message) {
       OpenAIChatMessageRole role = OpenAIChatMessageRole.user;
 
       switch (message.role) {
-        case Message.roleSystem:
+        case ChatCompletionMessage.roleSystem:
           role = OpenAIChatMessageRole.system;
           break;
-        case Message.roleAssistant:
+        case ChatCompletionMessage.roleAssistant:
           role = OpenAIChatMessageRole.assistant;
           break;
       }

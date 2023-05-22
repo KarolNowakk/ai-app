@@ -22,7 +22,6 @@ class ExerciseApiClient {
   Future<void> create(Map<String, dynamic> exerciseData) async {
     exerciseData["user_id"] = _auth.getUser().id;
 
-    log(exerciseData.toString());
     await _exeCollection.add(exerciseData);
   }
 

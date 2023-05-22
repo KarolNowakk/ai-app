@@ -4,13 +4,14 @@ import '../domain/word_structure.dart';
 import 'package:flutter/material.dart';
 
 abstract class RateWordModalInterface {
-  void show(BuildContext context, WordData data);
+  Future<void> show(BuildContext context, WordData data);
 }
 
 abstract class SRSAlgInterface {
   void setAll(List<WordData> list);
   WordData? getNextWord();
   WordData updateWordData(WordData wordData, int quality);
+  int remainingWords();
 }
 
 class SRSAlg implements SRSAlgInterface {
@@ -27,6 +28,11 @@ class SRSAlg implements SRSAlgInterface {
   @override
   void setAll(List<WordData> list) {
     _reviewQueue.addAll(list);
+  }
+
+  @override
+  int remainingWords() {
+    return _reviewQueue.length;
   }
 
   @override

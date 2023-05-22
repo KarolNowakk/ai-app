@@ -57,12 +57,12 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
   }
 
   AIConversation _getCurrentConv() {
-    List<Message> msgs = [];
-    msgs.add(Message(role: "system", content: _systemTextController.text));
+    List<ChatCompletionMessage> msgs = [];
+    msgs.add(ChatCompletionMessage(role: "system", content: _systemTextController.text));
 
     _messages.forEach((element) {
       element.getData((String content, role) {
-        msgs.add(Message(role: role, content: content));
+        msgs.add(ChatCompletionMessage(role: role, content: content));
       });
     });
 

@@ -15,13 +15,12 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
+  await Firebase.initializeApp();
 
   setupPlayground();
   setupLingApp();
-  setupWordsLib();
   setupSharedStuff();
-
-  await Firebase.initializeApp();
+  setupWordsLib();
 
   runApp(MyApp());
 }

@@ -1,4 +1,5 @@
 import 'package:app2/plugins/words_lib/application/words_repo.dart';
+import 'package:app2/plugins/words_lib/infrastructure/words_repo.dart';
 import 'package:app2/plugins/words_lib/screens/word_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:kiwi/kiwi.dart';
@@ -10,36 +11,43 @@ class WordsListScreen extends StatefulWidget {
 
   WordsListScreen({required this.lang});
 
-  final WordsRepoInterface _wordsRepo = KiwiContainer().resolve<WordsRepoInterface>();
+  final WordsRepo _wordsRepo = KiwiContainer().resolve<WordsRepo>();
 
   @override
   _WordsListScreenState createState() => _WordsListScreenState();
 }
 
 class _WordsListScreenState extends State<WordsListScreen> {
-  final List<WordData> _items = [];
+  final ScrollController _controller = ScrollController();
+  final evenItems = <Widget>[];
+  final oddItems = <Widget>[];
 
   @override
   void initState() {
     super.initState();
+    _loadExercises(widget.lang);
   }
 
   Future<void> _loadExercises(String lang) async {
-    if (_items.isNotEmpty) return;
+    List<WordData> wordsList = await widget._wordsRepo.getAllWords(lang, null);
 
-    List<WordData> wordsList = await widget._wordsRepo.getAllWords(lang);
+    for (var i = 0; i < wordsList.length; i++) {
+      WordTile tile = WordTile(data: wordsList[i]);
 
-    wordsList.forEach((word) {
+      if (i % 2 == 0) {
+        setState(() {
+          evenItems.add(tile);
+        });
+        continue;
+      }
       setState(() {
-        _items.add(word);
+        oddItems.add(tile);
       });
-    });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    _loadExercises(widget.lang);
-
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
@@ -50,18 +58,27 @@ class _WordsListScreenState extends State<WordsListScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(15.0),
-        child: _buildListTiles(),
+        child: _buildGridTiles(),
       ),
     );
   }
 
-  Widget _buildListTiles() {
-    return ListView.builder(
-      itemCount: _items.length,
-      itemBuilder: (context, index) {
-        final item = _items[index];
-        return WordTile(data: item);
-      },
+  Widget _buildGridTiles() {
+    return Row(
+      children: [
+        Expanded(
+          child: ListView(
+            controller: _controller,
+            children: evenItems,
+          ),
+        ),
+        Expanded(
+          child: ListView(
+            controller: _controller,
+            children: oddItems,
+          ),
+        ),
+      ],
     );
   }
 }

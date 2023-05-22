@@ -13,6 +13,17 @@ class WordRepo implements WordsRepoInterface{
   Future<List<WordData>> getAllWords() async {
     ExerciseStructure? currentExe = await _exe.getExerciseSettings();
     List<Map<String, dynamic>> rawList = await _api.getWordsForSRS(currentExe != null ? currentExe!.lang : "nope");
+
+    print(rawList);
+
+    List<WordData> wordsList = rawList.map((exercise) => WordData.fromJson(exercise)).toList();
+
+    return wordsList;
+  }
+
+  @override
+  Future<List<WordData>> getByIds(List<String> listIds) async {
+    List<Map<String, dynamic>> rawList = await _api.getWordsByIds(listIds);
     List<WordData> wordsList = rawList.map((exercise) => WordData.fromJson(exercise)).toList();
 
     return wordsList;

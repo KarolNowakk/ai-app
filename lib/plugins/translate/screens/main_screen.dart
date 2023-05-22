@@ -8,7 +8,6 @@ import 'package:app2/plugins/translate/screens/chat_input.dart';
 import 'package:flutter/material.dart';
 import 'package:kiwi/kiwi.dart';
 
-
 conv.AIConversation translateConv = conv.AIConversation(
   model: conv.AIConversation.gpt4,
   temperature: 0.1,
@@ -17,9 +16,9 @@ conv.AIConversation translateConv = conv.AIConversation(
   messages: [],
 );
 
-conv.Message translateSysMessage = conv.Message(
-    role: conv.Message.roleSystem,
-    content: 'Act as a very concise translator of all languages. If user asks for explaining, concisely explain. If that is a single word give a short example usage in sentence.'
+conv.ChatCompletionMessage translateSysMessage = conv.ChatCompletionMessage(
+    role: conv.ChatCompletionMessage.roleSystem,
+    content: 'Act as a very concise translator of all languages. If user asks for explaining, concisely explain.'
 );
 
 class TranslatorScreen extends StatefulWidget {
@@ -70,7 +69,6 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   }
 
   void action() {
-    log("chuj");
     bool isContextTextFocused = _wordTextFocusNode.hasFocus;
 
     if (isContextTextFocused || _chatTextController.text == "") {
@@ -82,11 +80,11 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   }
 
   void translate() {
-    List<conv.Message> messages = [
+    List<conv.ChatCompletionMessage> messages = [
       translateSysMessage,
-      conv.Message(
-        role: conv.Message.roleUser,
-        content: '$leftDropdown -> $rightDropdown: "${_wordTextController.text}"',
+      conv.ChatCompletionMessage(
+        role: conv.ChatCompletionMessage.roleUser,
+        content: '$leftDropdown -> $rightDropdown, english: "${_wordTextController.text}"',
       )
     ];
 
@@ -98,8 +96,8 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   void sendAMessage(String msg) {
     addTextMessage(context, msg, false);
 
-    translateConv.messages!.add(conv.Message(
-      role: conv.Message.roleUser,
+    translateConv.messages!.add(conv.ChatCompletionMessage(
+      role: conv.ChatCompletionMessage.roleUser,
       content: msg,
     ));
 
@@ -119,8 +117,8 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
           text += data;
         });
       }, onDone: () {
-        translateConv.messages!.add(conv.Message(
-          role: conv.Message.roleAssistant,
+        translateConv.messages!.add(conv.ChatCompletionMessage(
+          role: conv.ChatCompletionMessage.roleAssistant,
           content: text,
         ));
       },onError: (error) {

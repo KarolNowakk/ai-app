@@ -10,8 +10,8 @@ class RatingModalController implements RateWordModalInterface{
   RatingModalController();
 
   @override
-  void show(BuildContext context, WordData data) {
-    showDialog(
+  Future<void> show(BuildContext context, WordData data) async {
+    await showDialog(
       context: context,
       builder: (_) => RatingModal(
         data: data,
@@ -33,6 +33,7 @@ class RatingModal extends StatefulWidget {
 
 class _RatingModalState extends State<RatingModal> {
   int _rating = 0;
+  bool _doNotShowAnymore = false;
 
   void _onStarPressed(int rating) {
     setState(() {
@@ -40,9 +41,9 @@ class _RatingModalState extends State<RatingModal> {
     });
 
     WordData data = widget._srsAlg.updateWordData(widget.data, rating);
+    data.notSRS = _doNotShowAnymore;
 
     widget._wordRepo.updateWordDataInList(data);
-
     Navigator.of(context).pop();
   }
 
@@ -50,61 +51,37 @@ class _RatingModalState extends State<RatingModal> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text('Rate word: ${widget.data.word}'),
-      content: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          IconButton(
-            icon: Icon(
-              _rating >= 1 ? Icons.star : Icons.star_border,
-              size: 40.0,
-              color: Colors.amber,
-            ),
-            onPressed: () {
-              _onStarPressed(1);
-            },
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List<Widget>.generate(5, (index) => buildStarButton(index + 1)),
           ),
-          IconButton(
-            icon: Icon(
-              _rating >= 2 ? Icons.star : Icons.star_border,
-              size: 40.0,
-              color: Colors.amber,
-            ),
-            onPressed: () {
-              _onStarPressed(2);
-            },
-          ),
-          IconButton(
-            icon: Icon(
-              _rating >= 3 ? Icons.star : Icons.star_border,
-              size: 40.0,
-              color: Colors.amber,
-            ),
-            onPressed: () {
-              _onStarPressed(3);
-            },
-          ),
-          IconButton(
-            icon: Icon(
-              _rating >= 4 ? Icons.star : Icons.star_border,
-              size: 40.0,
-              color: Colors.amber,
-            ),
-            onPressed: () {
-              _onStarPressed(4);
-            },
-          ),
-          IconButton(
-            icon: Icon(
-              _rating >= 5 ? Icons.star : Icons.star_border,
-              size: 40.0,
-              color: Colors.amber,
-            ),
-            onPressed: () {
-              _onStarPressed(5);
+          CheckboxListTile(
+            title: const Text("Don't show anymore"),
+            value: _doNotShowAnymore,
+            onChanged: (bool? newValue) {
+              setState(() {
+                _doNotShowAnymore = newValue ?? false;
+              });
             },
           ),
         ],
       ),
+    );
+  }
+
+  Widget buildStarButton(int starNumber) {
+    return IconButton(
+      icon: Icon(
+        _rating >= starNumber ? Icons.star : Icons.star_border,
+        size: 40.0,
+        color: Colors.amber,
+      ),
+      onPressed: () {
+        _onStarPressed(starNumber);
+      },
     );
   }
 }

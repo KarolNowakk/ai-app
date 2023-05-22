@@ -4,4 +4,5 @@ abstract class WordsRepoInterface {
   Future<List<WordData>> getAllWords();
   Future<void> addWordDataToList(WordData word);
   Future<void> updateWordDataInList(WordData updatedWordData);
+  Future<List<WordData>> getByIds(List<String> listIds);
 }

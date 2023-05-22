@@ -1,11 +1,12 @@
-import 'package:app2/shared/helpers/helpers.dart';
+import 'package:app2/plugins/playground/domain/conversation.dart';
+import 'package:app2/shared/chat_message/domain/chat_message.dart';
 import 'package:app2/shared/text_to_speech/domain/tts.dart';
 import 'package:app2/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:kiwi/kiwi.dart';
 import 'dart:developer';
 
-class AudioAIMessage extends StatefulWidget {
+class AudioAIMessage extends StatefulWidget implements ChatMessageInterface {
   final TextToSpeechInterface _tts = KiwiContainer().resolve<TextToSpeechInterface>();
   bool _isPlaying = false;
 
@@ -14,8 +15,22 @@ class AudioAIMessage extends StatefulWidget {
   final Function()scrollToBottom;
   bool isStreamDone = false;
 
+  @override
+  String getRole() {
+    return ChatCompletionMessage.roleAssistant;
+  }
+
+  @override
+  String getContent() {
+    return displayText;
+  }
+
   AudioAIMessage(
       {super.key, required this.textStream, required this.scrollToBottom});
+
+  AudioAIMessage.withoutStream({super.key, required this.displayText, required this.scrollToBottom})
+        : textStream = null,
+          isStreamDone = true;
 
   @override
   _AudioAIMessageState createState() => _AudioAIMessageState();
@@ -23,13 +38,11 @@ class AudioAIMessage extends StatefulWidget {
 
 class _AudioAIMessageState extends State<AudioAIMessage> {
   late Color color;
-  late EdgeInsets margin;
 
   @override
   void initState() {
     super.initState();
     color = DarkTheme.primary;
-    margin = const EdgeInsets.only(left: 10, top: 10, right: 70, bottom: 0);
 
     if (widget.isStreamDone && widget.displayText != "") {
       return;
@@ -63,12 +76,8 @@ class _AudioAIMessageState extends State<AudioAIMessage> {
 
   @override
   Widget build(BuildContext context) {
-    return _buildMessage(widget.displayText, context);
-  }
-
-  Widget _buildMessage(String content, BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 8, top: 0, right: 8, bottom: 0),
+      padding: const EdgeInsets.only(left: 8, top: 3, right: 8, bottom: 3),
       child: ConstrainedBox(
         constraints: BoxConstraints(
             maxWidth: MediaQuery.of(context).size.width * 0.99),
@@ -79,7 +88,6 @@ class _AudioAIMessageState extends State<AudioAIMessage> {
             Expanded(
               child: Container(
                 alignment: Alignment.centerLeft,
-                // margin: margin,
                 padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
                 decoration: BoxDecoration(
                   boxShadow: [
@@ -102,7 +110,7 @@ class _AudioAIMessageState extends State<AudioAIMessage> {
                   constraints: BoxConstraints(
                       maxWidth: MediaQuery.of(context).size.width * 0.99 * 0.95),
                   child: SelectableText(
-                    content,
+                    widget.displayText,
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.normal,
@@ -115,8 +123,8 @@ class _AudioAIMessageState extends State<AudioAIMessage> {
             ),
             IconButton(
               icon: Icon(
-                  Icons.speaker,
-                  color: widget._isPlaying ? Colors.redAccent : DarkTheme.secondary,
+                Icons.speaker,
+                color: widget._isPlaying ? Colors.redAccent : DarkTheme.secondary,
               ),
               onPressed: () async {
                 if (!widget.isStreamDone) {
@@ -138,6 +146,5 @@ class _AudioAIMessageState extends State<AudioAIMessage> {
         ),
       ),
     );
-
   }
 }

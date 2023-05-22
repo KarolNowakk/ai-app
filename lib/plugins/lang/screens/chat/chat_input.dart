@@ -5,12 +5,14 @@ import 'package:flutter/material.dart';
 
 class ChatInput extends StatefulWidget {
   final Function() getNextPrompt;
+  final Function() onHoldAction;
   final Function(String) sendAMessage;
   final TextEditingController controller;
   final FocusNode focus;
 
   ChatInput({
     required this.getNextPrompt,
+    required this.onHoldAction,
     required this.sendAMessage,
     required this.controller,
     required this.focus,
@@ -90,12 +92,16 @@ class _ChatInputState extends State<ChatInput> {
             widget.focus.hasFocus
                 ? const SizedBox.shrink()
                 : RecordButton(getTranscribedText: getTranscription),
-            widget.focus.hasFocus ? const SizedBox.shrink()
-                : IconButtonInput(
-              action: widget.getNextPrompt,
-              icon: const Icon(
-                Icons.replay,
-                color: DarkTheme.secondary,
+            widget.focus.hasFocus
+                ? const SizedBox.shrink()
+                : GestureDetector(
+                onLongPress: widget.onHoldAction,
+                child: IconButtonInput(
+                action: widget.getNextPrompt,
+                icon: const Icon(
+                    Icons.replay,
+                    color: DarkTheme.secondary,
+                ),
               ),
             ),
           ],

@@ -8,23 +8,23 @@ class OptionsDrawer extends StatefulWidget {
   final TextEditingController _titleController = TextEditingController();
   double _topPValue = 0.5;
   double _tempValue = 0.5;
-  String model = AIConversation.gpt4;
+  String _model = AIConversation.gpt4;
   List<Widget> additionalElements;
 
   OptionsDrawer({super.key, List<Widget>? additionalElements})
       : additionalElements = additionalElements ?? [];
 
   void _onDropdownChange(String value) {
-    model = value;
+    _model = value;
   }
 
   void getData(void Function(String, String, double, double) callback) {
-    callback(_titleController.text, model, _topPValue, _tempValue);
+    callback(_titleController.text, _model, _topPValue, _tempValue);
   }
 
   void setData(String text, model, double topP, double temp) {
     _titleController.text = text;
-    model = model;
+    _model = model;
     _topPValue = topP;
     _tempValue = temp;
   }
@@ -42,8 +42,8 @@ class _OptionsDrawerState extends State<OptionsDrawer> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            const SizedBox(height: 20),
-            ModelDropdown(onChange: widget._onDropdownChange, value: widget.model),
+            const SizedBox(height: 50),
+            ModelDropdown(onChange: widget._onDropdownChange, value: widget._model),
             const SizedBox(height: 20),
             DefaultTextWidget(
                 controller: widget._titleController,

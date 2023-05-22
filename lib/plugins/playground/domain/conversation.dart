@@ -8,7 +8,7 @@ class AIConversation {
   final int? maxTokens;
   double? temperature;
   double? topP;
-  List<Message>? messages;
+  List<ChatCompletionMessage>? messages;
 
   AIConversation({
     this.title,
@@ -36,7 +36,7 @@ class AIConversation {
       title: json['title'],
       model: json['model'],
       messages: (json['messages'] as List<dynamic>?)
-          ?.map((item) => Message.fromJson(item as Map<String, dynamic>))
+          ?.map((item) => ChatCompletionMessage.fromJson(item as Map<String, dynamic>))
           .toList(),
       temperature: (json['temperature'] as num?)?.toDouble(),
       topP: (json['topP'] as num?)?.toDouble(),
@@ -58,7 +58,7 @@ class AIConversation {
   }
 }
 
-class Message {
+class ChatCompletionMessage {
   static const roleUser = "user";
   static const roleAssistant = "assistant";
   static const roleSystem = "system";
@@ -66,10 +66,10 @@ class Message {
   String role;
   String content;
 
-  Message({required this.role, required this.content});
+  ChatCompletionMessage({required this.role, required this.content});
 
-  factory Message.fromJson(Map<String, dynamic> json) {
-    return Message(
+  factory ChatCompletionMessage.fromJson(Map<String, dynamic> json) {
+    return ChatCompletionMessage(
       role: json['role'] as String,
       content: json['content'] as String,
     );

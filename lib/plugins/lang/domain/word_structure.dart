@@ -9,6 +9,16 @@ const List<String> supportedLanguages= [
 ];
 
 class WordData {
+  static const String idJson = 'id';
+  static const String wordJson = 'word';
+  static const String nextReviewJson = 'next_review';
+  static const String easeFactorJson = 'ease_factor';
+  static const String repetitionJson = 'repetition';
+  static const String intervalJson = 'interval';
+  static const String descriptionJson = 'description';
+  static const String langJson = 'lang';
+  static const String notSRSJson = 'not_srs';
+
   String id;
   String word;
   DateTime nextReview;
@@ -49,28 +59,28 @@ class WordData {
   }
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'word': word,
-    'next_review': nextReview.toIso8601String(),
-    'ease_factor': easeFactor,
-    'repetition': repetition,
-    'interval': interval,
-    'description': description,
-    'lang': lang,
-    'not_srs': notSRS,
+    idJson: id,
+    wordJson: word,
+    nextReviewJson: nextReview.toIso8601String(),
+    easeFactorJson: easeFactor,
+    repetitionJson: repetition,
+    intervalJson: interval,
+    descriptionJson: description,
+    langJson: lang,
+    notSRSJson: notSRS,
   };
 
   factory WordData.fromJson(Map<String, dynamic> json) {
     return WordData(
-      id: json['id'],
-      word: json['word'],
-      nextReview: DateTime.parse(json['next_review']),
-      easeFactor: json['ease_factor'],
-      repetition: json['repetition'],
-      interval: json['interval'],
-      description: json['description'] ?? "",
-      lang: json['lang'],
-      notSRS: json['not_srs'],
+      id: json[idJson],
+      word: json[wordJson],
+      nextReview: DateTime.parse(json[nextReviewJson]),
+      easeFactor: json[easeFactorJson],
+      repetition: json[repetitionJson],
+      interval: json[intervalJson],
+      description: json[descriptionJson] ?? "",
+      lang: json[langJson],
+      notSRS: json[notSRSJson],
     );
   }
 

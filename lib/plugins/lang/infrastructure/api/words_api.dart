@@ -7,19 +7,6 @@ class WordApiClient {
   final CollectionReference<Map<String, dynamic>> _wordsCollection =
       FirebaseFirestore.instance.collection('words');
 
-  Future<List<Map<String, dynamic>>> getAllWords(String lang) async {
-    final QuerySnapshot<Map<String, dynamic>> querySnapshot =
-        await _wordsCollection
-            .where('lang', isEqualTo: lang)
-            .where('user_id', isEqualTo: _auth.getUser().id)
-            .where('not_srs', isEqualTo: false)
-            .get();
-
-    return querySnapshot.docs
-        .map((doc) => doc.data()..addAll({'id': doc.id}))
-        .toList();
-  }
-
   Future<List<Map<String, dynamic>>> getWordsForSRS(String lang) async {
     final QuerySnapshot<Map<String, dynamic>> querySnapshot =
     await _wordsCollection
@@ -27,11 +14,27 @@ class WordApiClient {
         .where('user_id', isEqualTo: _auth.getUser().id)
         .where('next_review', isLessThan: DateTime.now().toIso8601String())
         .where('not_srs', isEqualTo: false)
+        .orderBy('next_review')
         .get();
 
     return querySnapshot.docs
         .map((doc) => doc.data()..addAll({'id': doc.id}))
         .toList();
+  }
+
+  Future<List<Map<String, dynamic>>> getWordsByIds(List<String> ids) async {
+    List<Map<String, dynamic>> result = [];
+
+    for (var id in ids) {
+      DocumentSnapshot<Map<String, dynamic>> doc =
+      await _wordsCollection.doc(id).get();
+
+      if (doc.exists) {
+        result.add(doc.data()!..addAll({'id': doc.id}));
+      }
+    }
+
+    return result;
   }
 
   Future<void> createWord(Map<String, dynamic> word) async {

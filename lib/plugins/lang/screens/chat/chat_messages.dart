@@ -1,3 +1,5 @@
+import 'package:app2/plugins/playground/domain/conversation.dart';
+import 'package:app2/shared/chat_message/domain/chat_message.dart';
 import 'package:app2/theme.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer';
@@ -8,7 +10,7 @@ abstract class SaveWordModalInterface {
   void hideSaveWorldModal(BuildContext context);
 }
 
-class Message extends StatefulWidget {
+class Message extends StatefulWidget implements ChatMessageInterface{
   final String? text;
   String displayText = "";
   final Stream<String>? textStream;
@@ -24,6 +26,16 @@ class Message extends StatefulWidget {
       {Key? key, required this.textStream, required this.isAIMsg, required this.scrollToBottom})
       : text = null,
         super(key: key);
+
+  @override
+  String getRole() {
+    return this.isAIMsg ? ChatCompletionMessage.roleAssistant : ChatCompletionMessage.roleUser;
+  }
+
+  @override
+  String getContent() {
+    return text ?? displayText;
+  }
 
   @override
   _MessageState createState() => _MessageState();

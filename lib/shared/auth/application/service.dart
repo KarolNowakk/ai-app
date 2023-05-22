@@ -12,6 +12,9 @@ class AuthService implements domain.AuthServiceInterface{
   @override
   domain.User getUser() {
     final user = _auth.currentUser;
+
+    print(user);
+
     return domain.User(id: user!.uid);
   }
 }
