@@ -1,10 +1,10 @@
-import 'package:app2/plugins/playground/domain/conversation.dart';
+import 'package:app2/shared/conversation/domain/conversation.dart';
 
 abstract class ConvHistoryRepoInterface {
   Future<List<ConvHistory>> getAllForParent(String parentId);
-  Future<void> updateHistory(ConvHistory history);
-  Future<void> createHistory(ConvHistory history);
-  Future<void> deleteHistory(ConvHistory history);
+  Future<void> update(ConvHistory history);
+  Future<void> create(ConvHistory history);
+  Future<void> delete(ConvHistory history);
 }
 
 class ConvHistory {
@@ -12,22 +12,21 @@ class ConvHistory {
   static const String parentIdJson = 'parent_id';
   static const String titleJson = 'title';
   static const String additionalDataJson = 'additional_data';
-  static const String convJson = 'conv';
-
+  static const String msgsJson = 'msgs';
   static const String wordsListEntry = "words_list";
 
   final String id;
   final String parentId;
   final String? title;
   Map<String, dynamic>? additionalData;
-  final AIConversation conv;
+  List<ChatCompletionMessage> msgs;
 
   ConvHistory({
     required this.id,
     required this.parentId,
     this.additionalData,
     this.title,
-    required this.conv,
+    required this.msgs,
   });
 
   Map<String, dynamic> toJson() => {
@@ -35,7 +34,7 @@ class ConvHistory {
     parentIdJson: parentId,
     titleJson: title,
     additionalDataJson: additionalData,
-    convJson: conv.toJson(),
+    msgsJson: msgs.map((item) => item.toJson()).toList(),
   };
 
   factory ConvHistory.fromJson(Map<String, dynamic> json) {
@@ -44,7 +43,8 @@ class ConvHistory {
       parentId: json[parentIdJson],
       title: json[titleJson],
       additionalData: json[additionalDataJson],
-      conv: AIConversation.fromJson(json[convJson]),
+      msgs: json[msgsJson].map((item) =>
+          ChatCompletionMessage.fromJson(item as Map<String, dynamic>)).toList(),
     );
   }
 }

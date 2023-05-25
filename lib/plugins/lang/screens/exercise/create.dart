@@ -1,5 +1,5 @@
 import 'package:app2/plugins/lang/application/exercise_repo.dart';
-import 'package:app2/plugins/playground/domain/conversation.dart';
+import 'package:app2/shared/conversation/domain/conversation.dart';
 import 'package:app2/shared/elements/lang_dropdown.dart';
 import 'package:app2/shared/elements/screens/ai_conv.dart';
 import 'package:app2/theme.dart';

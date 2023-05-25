@@ -56,6 +56,10 @@ class AIConversation {
       'maxTokens': maxTokens,
     };
   }
+
+  AIConversation copy() {
+    return AIConversation.fromJson(toJson());
+  }
 }
 
 class ChatCompletionMessage {

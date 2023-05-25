@@ -4,8 +4,8 @@ import 'package:app2/plugins/lang/application/current_ecercise_repo.dart';
 import 'package:app2/plugins/lang/application/words_repo.dart';
 import 'package:app2/plugins/lang/domain/word_structure.dart';
 import 'package:app2/plugins/lang/domain/exercise_structure.dart';
-import 'package:app2/plugins/playground/domain/ai_service.dart';
-import 'package:app2/plugins/playground/domain/conversation.dart';
+import 'package:app2/shared/conversation/domain/ai_service.dart';
+import 'package:app2/shared/conversation/domain/conversation.dart';
 import 'package:app2/shared/helpers/helpers.dart';
 import 'package:app2/shared/helpers/list_of_context.dart';
 import 'package:app2/shared/history/domain/conv_history.dart';
@@ -139,12 +139,12 @@ class WordExercisesController {
       ConvHistory.wordsListEntry:  currentWords.map((e) => e.id).toList()
     };
 
-    _convRepo.createHistory(hist);
+    // _convRepo.createHistory(hist);
   }
 
   void updateConvHistory(String id, List<ChatCompletionMessage> msgsFromConversation) async {
     ConvHistory hist = await _buildConvHistory(id, msgsFromConversation);
-    _convRepo.updateHistory(hist);
+    // _convRepo.updateHistory(hist);
   }
 
   Future<ConvHistory> _buildConvHistory(String id, List<ChatCompletionMessage> msgsFromConversation) async {
@@ -160,7 +160,7 @@ class WordExercisesController {
     return ConvHistory(
       id: id,
       parentId: parentId,
-      conv: exerciseStructure.conv,
+      msgs: msgsFromConversation,
     );
   }
 }

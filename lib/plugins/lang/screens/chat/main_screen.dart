@@ -1,7 +1,7 @@
 import 'package:app2/plugins/lang/application/srs_alg.dart';
 import 'package:app2/plugins/lang/domain/word_structure.dart';
 import 'package:app2/plugins/lang/interfaces/word_excercises_controller.dart';
-import 'package:app2/plugins/playground/domain/conversation.dart';
+import 'package:app2/shared/conversation/domain/conversation.dart';
 import 'package:app2/shared/chat_message/domain/chat_message.dart';
 import 'package:app2/shared/chat_message/elements/audio_ai_message.dart';
 import 'package:app2/shared/elements/default_scaffold.dart';
@@ -186,7 +186,7 @@ class _ExercisesChatScreenState extends State<ExercisesChatScreen> {
 
     addDivider(); // just for consistent look
 
-    for (var message in hist.conv!.messages!) {
+    for (var message in hist.msgs!) {
       switch (message.role) {
         case ChatCompletionMessage.roleSystem:
           break;
@@ -211,7 +211,6 @@ class _ExercisesChatScreenState extends State<ExercisesChatScreen> {
     return DefaultScaffold(
       drawer: _exerciseId != null ?
       HistoryDrawer(
-        loadHistory: loadFromHistory,
         parentId: _exerciseId!,
       ) :
       null,

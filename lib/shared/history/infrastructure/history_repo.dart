@@ -14,13 +14,13 @@ class ConvHistoryRepo implements ConvHistoryRepoInterface {
   }
 
   @override
-  Future<void> updateHistory(ConvHistory history) async {
+  Future<void> update(ConvHistory history) async {
     Map<String, dynamic> wordData = history.toJson();
     _api.update(wordData);
   }
 
   @override
-  Future<void> createHistory(ConvHistory history) async {
+  Future<void> create(ConvHistory history) async {
     Map<String, dynamic> wordData = history.toJson();
 
     wordData["created_at"] = DateTime.now().toIso8601String();
@@ -28,7 +28,7 @@ class ConvHistoryRepo implements ConvHistoryRepoInterface {
   }
 
   @override
-  Future<void> deleteHistory(ConvHistory history) async {
+  Future<void> delete(ConvHistory history) async {
     _api.delete(history.id);
   }
 }

@@ -1,8 +1,8 @@
 import "dart:async";
 import "dart:developer";
 import "package:app2/plugins/lang/application/config.dart";
-import "package:app2/plugins/playground/domain/ai_service.dart";
-import "package:app2/plugins/playground/domain/conversation.dart";
+import 'package:app2/shared/conversation/domain/ai_service.dart';
+import 'package:app2/shared/conversation/domain/conversation.dart';
 import "package:dart_openai/openai.dart";
 import "package:kiwi/kiwi.dart";
 
@@ -24,7 +24,7 @@ class AIService implements AIServiceInterface{
 
     // log("------------------ ai_service -----------------");
     // conv.messages!.forEach((element) {
-    //   log(element.toString());
+      log(conv.model!);
     //   log('TopP: ${conv.topP.toString()}');
     //   log('Temp: ${conv.temperature.toString()}');
     // });

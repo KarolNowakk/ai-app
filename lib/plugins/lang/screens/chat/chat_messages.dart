@@ -1,4 +1,4 @@
-import 'package:app2/plugins/playground/domain/conversation.dart';
+import 'package:app2/shared/conversation/domain/conversation.dart';
 import 'package:app2/shared/chat_message/domain/chat_message.dart';
 import 'package:app2/theme.dart';
 import 'package:flutter/material.dart';

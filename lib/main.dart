@@ -2,15 +2,16 @@ import 'package:app2/plugins/lang/injection_container.dart';
 import 'package:app2/plugins/playground/injection_container.dart';
 import 'package:app2/plugins/words_lib/injection_container.dart';
 import 'package:app2/screens/auth/splash.dart';
-import 'package:app2/screens/auth/start.dart';
-import 'package:app2/shared/auth/domain/service.dart';
+import 'package:app2/shared/conversation/domain/preset_chat.dart';
+import 'package:app2/shared/conversation/interfaces/conversation_provider.dart';
+import 'package:app2/shared/conversation/interfaces/presets_provider.dart';
 import 'package:app2/shared/injection_container.dart';
 import 'package:app2/theme.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:kiwi/kiwi.dart';
 import 'router.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:provider/provider.dart';
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,7 +23,16 @@ Future main() async {
   setupSharedStuff();
   setupWordsLib();
 
-  runApp(MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ConversationProvider()),
+        ChangeNotifierProvider(create: (_) => PresetsProvider<PresetChat>()),
+      ],
+      child: MyApp(),
+    ),
+  );
+  // runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {

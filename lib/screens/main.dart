@@ -1,6 +1,8 @@
 import 'package:app2/plugins/lang/application/config.dart';
 import 'package:app2/plugins/playground/screens/main.dart';
 import 'package:app2/plugins/words_lib/screens/lang_select.dart';
+import 'package:app2/shared/conversation/screens/chat/main_chat.dart';
+import 'package:app2/shared/conversation/screens/presets/select_screen.dart';
 import 'package:app2/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:kiwi/kiwi.dart';
@@ -116,6 +118,21 @@ class _ExerciseHomeScreenState extends State<ExerciseHomeScreen> {
                       text: 'Playground',
                       icon: Icon(
                         Icons.child_care,
+                        color: DarkTheme.textColor,
+                        size: 70,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                children: const [
+                  Expanded(
+                    child: OptionButton(
+                      route: PresetsSelectorScreen.route,
+                      text: 'Chat',
+                      icon: Icon(
+                        Icons.chat,
                         color: DarkTheme.textColor,
                         size: 70,
                       ),

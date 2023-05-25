@@ -1,5 +1,5 @@
 import 'package:app2/shared/elements/text_field.dart';
-import 'package:app2/plugins/playground/domain/conversation.dart';
+import 'package:app2/shared/conversation/domain/conversation.dart';
 import 'package:app2/plugins/playground/screens/model_dropdown.dart';
 import 'package:app2/theme.dart';
 import 'package:flutter/material.dart';

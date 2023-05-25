@@ -1,5 +1,8 @@
 import 'package:app2/shared/auth/application/service.dart';
 import 'package:app2/shared/auth/domain/service.dart';
+import 'package:app2/shared/conversation/domain/preset_chat.dart';
+import 'package:app2/shared/conversation/domain/preset_repo.dart';
+import 'package:app2/shared/conversation/infrastructure/presets_repo.dart';
 import 'package:app2/shared/history/domain/conv_history.dart';
 import 'package:app2/shared/history/infrastructure/api/api.dart';
 import 'package:app2/shared/history/infrastructure/history_repo.dart';
@@ -16,6 +19,9 @@ void setupSharedStuff() {
   container.registerSingleton<FileReaderInterface>((c) => FileReaderImpl());
   container.registerSingleton<TextToSpeechInterface>((c) => TextToSpeech());
   container.registerSingleton<AuthServiceInterface>((c) => AuthService());
+
+  container.registerSingleton<PresetsRepoInterface<PresetChat>>((c)
+    => PresetsRepo<PresetChat>(fromJson: PresetChat.fromJson, collectionName: PresetChat.collectionName()));
 
   container.registerInstance(ConvHistoryApiClient());
   container.registerSingleton<ConvHistoryRepoInterface>((c) => ConvHistoryRepo());

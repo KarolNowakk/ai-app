@@ -23,7 +23,7 @@ class WebReader extends WebReaderInterface {
     final String requestBody = jsonEncode({
       'model_id': 'eleven_multilingual_v1',
       'text': text,
-      'voice_settings': {'stability': 0, 'similarity_boost': 0},
+      'voice_settings': {'stability': 0.1, 'similarity_boost': 0.1},
     });
 
     http.Response response = await http.post(
