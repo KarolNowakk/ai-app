@@ -17,7 +17,7 @@ class ConvHistory {
 
   final String id;
   final String parentId;
-  final String? title;
+  String? title;
   Map<String, dynamic>? additionalData;
   List<ChatCompletionMessage> msgs;
 
@@ -43,7 +43,7 @@ class ConvHistory {
       parentId: json[parentIdJson],
       title: json[titleJson],
       additionalData: json[additionalDataJson],
-      msgs: json[msgsJson].map((item) =>
+      msgs: (json[msgsJson] as List<dynamic>).map<ChatCompletionMessage>((item) =>
           ChatCompletionMessage.fromJson(item as Map<String, dynamic>)).toList(),
     );
   }

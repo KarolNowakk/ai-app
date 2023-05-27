@@ -47,6 +47,28 @@ class AIService implements AIServiceInterface{
     return listUpdateController.stream;
   }
 
+  @override
+  Future<String> kindlyAskAIForString(AIConversation conv) async {
+    OpenAI.apiKey = _config.getEntry(openAIKey);
+
+    OpenAIChatCompletionModel chatCompletion = await
+    OpenAI.instance.chat.create(
+      model: conv.model ?? AIConversation.gpt4,
+      temperature: conv.temperature,
+      topP: conv.topP,
+      messages: mapMessageListToChatModelList(conv.messages!),
+    );
+
+    // log("------------------ ai_service -----------------");
+    // conv.messages!.forEach((element) {
+    log(conv.model!);
+    //   log('TopP: ${conv.topP.toString()}');
+    //   log('Temp: ${conv.temperature.toString()}');
+    // });
+
+    return chatCompletion.choices.first.message.content;
+  }
+
   List<OpenAIChatCompletionChoiceMessageModel> mapMessageListToChatModelList(
       List<ChatCompletionMessage> messageList) {
     return messageList.map((message) {

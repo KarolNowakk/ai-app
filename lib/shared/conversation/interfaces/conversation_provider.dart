@@ -12,11 +12,17 @@ class ConversationProvider with ChangeNotifier {
   final ConvHistoryRepoInterface _historyRepo = KiwiContainer().resolve<ConvHistoryRepoInterface>();
 
   String _historyId = "";
+  String _presetId = "";
   bool _isCurrentlyStreaming = false;
   AIConversation? _conv;
   final List<ChatCompletionMessage> _messages = [];
 
   get messages => _messages;
+  get presetId => _presetId;
+
+  void setPresetId(String id) {
+    _presetId = id;
+  }
 
   void stopStream() {
     _isCurrentlyStreaming = false;
@@ -26,12 +32,15 @@ class ConversationProvider with ChangeNotifier {
     stopStream();
     _conv = null;
     _messages.clear();
+    _presetId = "";
+    _historyId = "";
   }
 
-  void setConversation(AIConversation conversation) {
+  void setConversation(String presetId, AIConversation conversation) {
     _conv = conversation;
     _messages.clear();
     _messages.addAll(conversation.messages!);
+    _presetId = presetId;
     notifyListeners();
   }
 
@@ -39,6 +48,7 @@ class ConversationProvider with ChangeNotifier {
     _messages.clear();
     _messages.addAll(history.msgs);
     _historyId = history.id;
+    _presetId = history.parentId;
     notifyListeners();
   }
 
@@ -48,6 +58,7 @@ class ConversationProvider with ChangeNotifier {
     _messages.add(ChatCompletionMessage(role: role, content: content));
     _askAI();
 
+    saveConvToHistory();
     notifyListeners();
   }
 
@@ -80,6 +91,8 @@ class ConversationProvider with ChangeNotifier {
     }, onDone: () {
       _isCurrentlyStreaming = false;
       _addStreamMessage(content);
+
+      saveConvToHistory();
     }, onError: (error) {
       _isCurrentlyStreaming = false;
       log('Error: $error');
@@ -97,13 +110,29 @@ class ConversationProvider with ChangeNotifier {
     ));
   }
 
-  void saveConvTHistory() {
-    ConvHistory conv = ConvHistory(
-        id: _historyId != "" ? _historyId : generateRandomString(19),
-        parentId: _conv. != null ? _conv!.id! : ,
-        msgs: msgs,
+  void saveConvToHistory() {
+    if (_presetId == "") return;
+
+    if (_historyId == "") {
+      _historyId = generateRandomString(19);
+
+      ConvHistory convHistory = ConvHistory(
+        id: _historyId,
+        parentId: _presetId,
+        msgs: _messages,
+      );
+
+      _historyRepo.create(convHistory);
+
+      return;
+    }
+
+    ConvHistory convHistory = ConvHistory(
+      id: _historyId,
+      parentId: _presetId,
+      msgs: _messages,
     );
 
-
+    _historyRepo.update(convHistory);
   }
 }

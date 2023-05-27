@@ -1,3 +1,4 @@
+import 'package:app2/shared/conversation/domain/preset.dart';
 import 'package:app2/shared/conversation/domain/preset_chat.dart';
 import 'package:app2/shared/conversation/interfaces/conversation_provider.dart';
 import 'package:app2/shared/conversation/interfaces/presets_provider.dart';
@@ -78,7 +79,7 @@ class _PresetsSelectorScreenState extends State<PresetsSelectorScreen> {
               child: GestureDetector(
                 onTap: () {
                   context.read<PresetsProvider<PresetChat>>().setIndexToUpdate(-1);
-                  context.read<ConversationProvider>().setConversation(item.conv);
+                  context.read<ConversationProvider>().setConversation(item.id, item.conv);
                     Navigator.pushNamed(context, BasicConversationScreen.route);
                 },
                 child: Padding(

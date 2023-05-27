@@ -12,7 +12,7 @@ class PresetsProvider<T extends Preset> with ChangeNotifier {
   int _indexUpdating = -1;
 
   int get count => _items.length;
-  T? get currentItem => _currentItem;
+  T? currentItem() => _currentItem;
 
   T item(int i) => _items[i];
 

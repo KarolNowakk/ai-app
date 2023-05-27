@@ -55,7 +55,7 @@ class _BasicConversationScreenState extends State<BasicConversationScreen> {
   Widget build(BuildContext context) {
     return DefaultScaffold(
       drawer: HistoryDrawer(
-        parentId: context.read<PresetsProvider<PresetChat>>().currentItem!.id,
+        parentId: context.read<ConversationProvider>().presetId
       ),
       actions: [
         Builder(

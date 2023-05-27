@@ -5,6 +5,7 @@ import 'package:app2/screens/auth/splash.dart';
 import 'package:app2/shared/conversation/domain/preset_chat.dart';
 import 'package:app2/shared/conversation/interfaces/conversation_provider.dart';
 import 'package:app2/shared/conversation/interfaces/presets_provider.dart';
+import 'package:app2/shared/history/interfaces/history_provider.dart';
 import 'package:app2/shared/injection_container.dart';
 import 'package:app2/theme.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -28,6 +29,7 @@ Future main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => ConversationProvider()),
         ChangeNotifierProvider(create: (_) => PresetsProvider<PresetChat>()),
+        ChangeNotifierProvider(create: (_) => HistoryProvider()),
       ],
       child: MyApp(),
     ),

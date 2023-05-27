@@ -1,4 +1,5 @@
 import 'package:app2/shared/auth/domain/service.dart';
+import 'package:app2/shared/history/domain/conv_history.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:kiwi/kiwi.dart';
 
@@ -27,9 +28,15 @@ class ConvHistoryApiClient {
   }
 
   Future<void> update(Map<String, dynamic> history) async {
-    history["user_id"] = _auth.getUser().id;
+    _exeCollection.doc(history['id']).update({
+      ConvHistory.msgsJson: history[ConvHistory.msgsJson],
+    });
+  }
 
-    await _exeCollection.doc(history['id']).update(history);
+  Future<void> updateTitle(Map<String, dynamic> history) async {
+    _exeCollection.doc(history['id']).update({
+      ConvHistory.titleJson: history[ConvHistory.titleJson],
+    });
   }
 
   Future<void> delete(String historyId) async {

@@ -34,11 +34,11 @@ class _CreatePresetScreenState extends State<CreatePresetScreen> {
   void initState() {
     super.initState();
 
-    _preset = context.read<PresetsProvider<PresetChat>>().currentItem;
+    _preset = context.read<PresetsProvider<PresetChat>>().currentItem();
   }
 
   void save(AIConversation conv) {
-    _preset = context.read<PresetsProvider<PresetChat>>().currentItem;
+    _preset = context.read<PresetsProvider<PresetChat>>().currentItem();
     PresetChat preset = PresetChat(id: _preset?.id, conv: conv);
 
     context.read<PresetsProvider<PresetChat>>().save(preset);
