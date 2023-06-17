@@ -2,34 +2,37 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:app2/shared/conversation/domain/conversation.dart';
+import 'package:app2/shared/conversation/domain/preset.dart';
+import 'package:app2/shared/helpers/list_of_context.dart';
 
-class ExerciseStructure{
-  String? id;
+class ExerciseStructure extends Preset{
   bool useSRS;
   String lang;
   AIConversation conv;
-  // regular temp is used for the first message, and later this temp is used
-  // the idea is to avoid repeatable sentences that gpt is coming up with
-  // but for explaining gpt should be more precise
-  double tempForLater;
   int numberOfWordsToUse;
 
   ExerciseStructure({
-    this.id,
-    required this.tempForLater,
+    id,
+    title,
     required this.useSRS,
     required this.lang,
     required this.conv,
     required this.numberOfWordsToUse,
-  });
+  }) : super(
+    id: id,
+    title: title ?? "error",
+  );
 
+  static String collectionName() => 'exercises';
+
+  @override
   Map<String, dynamic> toJson() {
     Map<String, dynamic> asJson = conv.toJson();
 
     asJson['id'] = id;
+    asJson['title'] = title;
     asJson['use_srs'] = useSRS;
     asJson['lang'] = lang;
-    asJson['temp_for_later'] = tempForLater;
     asJson['number_of_words_to_use'] = numberOfWordsToUse;
 
     return asJson;
@@ -40,11 +43,15 @@ class ExerciseStructure{
 
     return ExerciseStructure(
       id: json['id'],
+      title: json['title'],
       useSRS: json['use_srs'],
       lang: json['lang'],
-      tempForLater: json['temp_for_later'] ?? 0.1,
       numberOfWordsToUse: json['number_of_words_to_use'] ?? 1,
       conv: conv,
     );
+  }
+
+  ExerciseStructure copy() {
+    return ExerciseStructure.fromJson(toJson());
   }
 }

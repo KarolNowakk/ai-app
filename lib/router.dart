@@ -1,4 +1,8 @@
-import 'package:app2/plugins/lang/domain/exercise_structure.dart';
+import 'package:app2/plugins/image_to_text/screens/main.dart';
+import 'package:app2/plugins/lang/screens/chat/exercise_screen.dart';
+import 'package:app2/plugins/lang/screens/exercise/creator.dart';
+import 'package:app2/plugins/lang/screens/exercise/selector.dart';
+import 'package:app2/plugins/translate/screens/create_translator_conv.dart';
 import 'package:app2/screens/auth/login.dart';
 import 'package:app2/screens/auth/register.dart';
 import 'package:app2/screens/auth/start.dart';
@@ -7,15 +11,12 @@ import 'package:app2/shared/conversation/domain/conversation.dart';
 import 'package:app2/plugins/playground/screens/main.dart';
 import 'package:app2/plugins/words_lib/screens/words_list.dart';
 import 'package:app2/screens/main.dart';
-import 'package:app2/plugins/lang/screens/exercise/create.dart';
 import 'package:app2/plugins/translate/screens/main_screen.dart';
 import 'package:app2/plugins/words_lib/screens/lang_select.dart';
 import 'package:app2/shared/conversation/screens/chat/main_chat.dart';
 import 'package:app2/shared/conversation/screens/presets/create_preset.dart';
 import 'package:app2/shared/conversation/screens/presets/select_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:app2/plugins/lang/screens/chat/main_screen.dart';
-import 'package:app2/plugins/lang/screens/exercise/select.dart';
 
 MaterialPageRoute route(settings) {
   WidgetBuilder? builder;
@@ -27,15 +28,14 @@ MaterialPageRoute route(settings) {
     case ExerciseHomeScreen.route:
       builder = (BuildContext context) => ExerciseHomeScreen();
       break;
-    case '/exercise':
-      builder = (BuildContext context) => ExercisesChatScreen();
+    case ExerciseScreen.route:
+      builder = (BuildContext context) => ExerciseScreen();
       break;
-    case '/exercise_selector':
-      builder = (BuildContext context) => ExerciseSelectorScreen();
+    case ExerciseSelectorScreen.route:
+      builder = (BuildContext context) => const ExerciseSelectorScreen();
       break;
-    case '/exercise_creator':
-      final ExerciseStructure? value = settings.arguments as ExerciseStructure?;
-      builder = (BuildContext context) => CreateExerciseScreen(exe: value);
+    case ExerciseCreatorScreen.route:
+      builder = (BuildContext context) => const ExerciseCreatorScreen();
       break;
     case '/config':
       builder = (BuildContext context) => BasicConfigScreen();
@@ -68,6 +68,13 @@ MaterialPageRoute route(settings) {
       break;
     case PresetsSelectorScreen.route:
       builder = (BuildContext context) => const PresetsSelectorScreen();
+      break;
+    case CreateTranslateConvScreen.route:
+      final String? value = settings.arguments as String?;
+      builder = (BuildContext context) => CreateTranslateConvScreen(convKind: value!);
+      break;
+    case LiveTextTranslation.route:
+      builder = (BuildContext context) => const LiveTextTranslation();
       break;
   }
 

@@ -2,6 +2,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 const String openAIKey = "open_ai_api_key";
 const String elevenLabsApiKey = "airtable_api_key";
+const String sttLanguageKey = "stt_lang";
 
 class Config {
   final Map<String, String> _config = {};

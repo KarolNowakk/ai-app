@@ -7,12 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class ChatInput extends StatefulWidget {
-  final TextEditingController controller = TextEditingController();
-  final FocusNode focus;
+  final TextEditingController _controller = TextEditingController();
+  final FocusNode _focus = FocusNode();
 
-  ChatInput({
-    required this.focus,
-  });
+  ChatInput({super.key});
 
   @override
   State<ChatInput> createState() => _ChatInputState();
@@ -22,7 +20,7 @@ class _ChatInputState extends State<ChatInput> {
   @override
   void initState() {
     super.initState();
-    widget.focus.addListener(_onFocusChanged);
+    widget._focus.addListener(_onFocusChanged);
   }
 
   void _onFocusChanged() {
@@ -30,13 +28,13 @@ class _ChatInputState extends State<ChatInput> {
   }
 
   void getTranscription(String transcription) async {
-    widget.controller.text = transcription;
-    log("HERE: ${widget.controller.text}");
+    widget._controller.text = transcription;
+    log("HERE: ${widget._controller.text}");
   }
 
   void send() {
-    widget.controller.clear();
-    widget.focus.unfocus();
+    widget._controller.clear();
+    widget._focus.unfocus();
   }
 
   @override
@@ -52,8 +50,8 @@ class _ChatInputState extends State<ChatInput> {
               child: Padding(
                 padding: const EdgeInsets.only(right: 8),
                 child: TextField(
-                  focusNode: widget.focus,
-                  controller: widget.controller,
+                  focusNode: widget._focus,
+                  controller: widget._controller,
                   cursorColor: Colors.white,
                   // Set cursor color to white
                   style: const TextStyle(color: Colors.white),
@@ -67,7 +65,7 @@ class _ChatInputState extends State<ChatInput> {
                   ),
                   onSubmitted: (text) {
                     send();
-                    widget.controller.clear();
+                    widget._controller.clear();
                   },
                   keyboardType: TextInputType.multiline,
                   minLines: 1,
@@ -80,8 +78,8 @@ class _ChatInputState extends State<ChatInput> {
               child: IconButtonInput(
                 action: () {
                   context.read<ConversationProvider>().addMessage(
-                      ChatCompletionMessage.roleUser, widget.controller.text);
-                  widget.controller.text = "";
+                      ChatCompletionMessage.roleUser, widget._controller.text);
+                  widget._controller.text = "";
                 },
                 icon: const Icon(
                   Icons.send,
@@ -90,7 +88,7 @@ class _ChatInputState extends State<ChatInput> {
                 ),
               ),
             ),
-            widget.focus.hasFocus
+            widget._focus.hasFocus
                 ? const SizedBox.shrink()
                 : RecordButton(getTranscribedText: getTranscription),
           ],

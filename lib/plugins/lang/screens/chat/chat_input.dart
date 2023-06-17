@@ -1,50 +1,54 @@
 import 'dart:developer';
+import 'package:app2/plugins/lang/application/srs_alg.dart';
+import 'package:app2/plugins/lang/domain/word_structure.dart';
+import 'package:app2/plugins/lang/interfaces/exercises_provider.dart';
+import 'package:app2/shared/conversation/domain/conversation.dart';
+import 'package:app2/shared/conversation/interfaces/conversation_provider.dart';
 import 'package:app2/shared/elements/record_button.dart';
 import 'package:app2/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:kiwi/kiwi.dart';
+import 'package:provider/provider.dart';
 
-class ChatInput extends StatefulWidget {
-  final Function() getNextPrompt;
-  final Function() onHoldAction;
-  final Function(String) sendAMessage;
-  final TextEditingController controller;
-  final FocusNode focus;
+class ExerciseChatInput extends StatefulWidget {
+  final RateWordModalInterface _rateWordModal = KiwiContainer().resolve<RateWordModalInterface>();
 
-  ChatInput({
-    required this.getNextPrompt,
-    required this.onHoldAction,
-    required this.sendAMessage,
-    required this.controller,
-    required this.focus,
-  });
+  ExerciseChatInput({super.key});
 
   @override
-  State<ChatInput> createState() => _ChatInputState();
+  State<ExerciseChatInput> createState() => _ExerciseChatInputState();
 }
 
-class _ChatInputState extends State<ChatInput> {
-
-  @override
-  void initState() {
-    super.initState();
-    widget.focus.addListener(_onFocusChanged);
-  }
-
-  void _onFocusChanged() {
-    setState(() {});
-  }
+class _ExerciseChatInputState extends State<ExerciseChatInput> {
+  final TextEditingController _controller = TextEditingController();
+  final FocusNode _focus = FocusNode();
 
   void getTranscription(String transcription) async {
-    widget.controller.text = transcription;
-    log("HERE: ${widget.controller.text}");
+    _controller.text += transcription;
+    log("HERE: ${_controller.text}");
   }
 
   void send() {
-    widget.sendAMessage(widget.controller.text);
-    widget.controller.clear();
-    widget.focus.unfocus();
+    context.read<ConversationProvider>().addMessage(ChatCompletionMessage.roleUser, _controller.text);
+    _controller.clear();
+    _focus.unfocus();
   }
 
+  void getNextExercise() async {
+    ExerciseProvider exerciseProvider = context.read<ExerciseProvider>();
+    await evaluateWords(exerciseProvider);
+    exerciseProvider.requestExercise();
+  }
+
+  Future<void> evaluateWords(ExerciseProvider exerciseProvider) async {
+    List<WordData> wordsCopy = List<WordData>.from(exerciseProvider.wordsToEvaluate);
+
+    while(wordsCopy.isNotEmpty) {
+      await widget._rateWordModal.show(context, wordsCopy[0]);
+      exerciseProvider.deleteEvaluatedWord(0);
+      wordsCopy.removeAt(0);
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Expanded(
@@ -58,8 +62,8 @@ class _ChatInputState extends State<ChatInput> {
               child: Padding(
                 padding: const EdgeInsets.only(right: 8),
                 child: TextField(
-                  focusNode: widget.focus,
-                  controller: widget.controller,
+                  focusNode: _focus,
+                  controller: _controller,
                   cursorColor: Colors.white,
                   // Set cursor color to white
                   style: const TextStyle(color: Colors.white),
@@ -71,10 +75,7 @@ class _ChatInputState extends State<ChatInput> {
                     // Set hint text color to white
                     border: InputBorder.none,
                   ),
-                  onSubmitted: (text) {
-                    send();
-                    widget.controller.clear();
-                  },
+                  onSubmitted: (_) => send,
                   keyboardType: TextInputType.multiline,
                   minLines: 1,
                   maxLines: null,
@@ -89,15 +90,15 @@ class _ChatInputState extends State<ChatInput> {
                 size: 30,
               ),
             ),
-            widget.focus.hasFocus
+            _focus.hasFocus
                 ? const SizedBox.shrink()
                 : RecordButton(getTranscribedText: getTranscription),
-            widget.focus.hasFocus
+            _focus.hasFocus
                 ? const SizedBox.shrink()
                 : GestureDetector(
-                onLongPress: widget.onHoldAction,
+                onLongPress: () => evaluateWords(context.read<ExerciseProvider>()),
                 child: IconButtonInput(
-                action: widget.getNextPrompt,
+                action: () => getNextExercise(),
                 icon: const Icon(
                     Icons.replay,
                     color: DarkTheme.secondary,
@@ -131,9 +132,7 @@ class IconButtonInput extends StatelessWidget {
           color: DarkTheme.textColor,
         ),
       ),
-      onPressed: () {
-        action();
-      },
+      onPressed: action,
       child: icon,
     );
   }

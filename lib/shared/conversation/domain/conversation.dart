@@ -90,4 +90,8 @@ class ChatCompletionMessage {
   String toString() {
     return 'Message(role: $role, content: $content)';
   }
+
+  ChatCompletionMessage copy() {
+    return ChatCompletionMessage.fromJson(toJson());
+  }
 }

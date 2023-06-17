@@ -43,8 +43,12 @@ class ConvHistory {
       parentId: json[parentIdJson],
       title: json[titleJson],
       additionalData: json[additionalDataJson],
-      msgs: (json[msgsJson] as List<dynamic>).map<ChatCompletionMessage>((item) =>
-          ChatCompletionMessage.fromJson(item as Map<String, dynamic>)).toList(),
+      msgs: json[msgsJson] == null
+          ? []
+          : (json[msgsJson] as List<dynamic>)
+          .map<ChatCompletionMessage>((item) =>
+          ChatCompletionMessage.fromJson(item as Map<String, dynamic>))
+          .toList(),
     );
   }
 }

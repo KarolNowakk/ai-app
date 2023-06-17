@@ -1,10 +1,13 @@
 import 'dart:developer';
+import 'package:app2/plugins/lang/application/words_repo.dart';
 import 'package:app2/plugins/lang/domain/word_structure.dart';
-import 'package:app2/plugins/lang/screens/chat/chat_messages.dart' as save;
 import 'package:app2/plugins/lang/screens/chat/chat_messages.dart';
+import 'package:app2/plugins/translate/infrastrucutre/translate_conv.repo.dart';
+import 'package:app2/plugins/translate/screens/create_translator_conv.dart';
 import 'package:app2/shared/conversation/domain/ai_service.dart';
 import 'package:app2/shared/conversation/domain/conversation.dart' as conv;
 import 'package:app2/plugins/translate/screens/chat_input.dart';
+import 'package:app2/shared/conversation/screens/presets/create_preset.dart';
 import 'package:flutter/material.dart';
 import 'package:kiwi/kiwi.dart';
 
@@ -16,26 +19,34 @@ conv.AIConversation translateConv = conv.AIConversation(
   messages: [],
 );
 
-conv.ChatCompletionMessage translateSysMessage = conv.ChatCompletionMessage(
-    role: conv.ChatCompletionMessage.roleSystem,
-    content: 'Act as a very concise translator of all languages. If user asks for explaining, concisely explain.'
-);
+List<conv.ChatCompletionMessage> defaultMessages = [
+  conv.ChatCompletionMessage(
+      role: conv.ChatCompletionMessage.roleSystem,
+      content: 'Act as a very concise translator of all languages. If user asks for explaining, concisely explain.'),
+  conv.ChatCompletionMessage(
+    role: conv.ChatCompletionMessage.roleUser,
+    content: '${TranslatorScreen.leftDropdownText} -> ${TranslatorScreen.rightDropdownText}, english: "${TranslatorScreen.wordText}"',
+  )
+];
 
 class TranslatorScreen extends StatefulWidget {
+  static const leftDropdownText = "###LEFT###";
+  static const rightDropdownText = "###RIGHT###";
+  static const wordText = "###WORD###";
+
   List<Message> messages = [];
 
   @override
-  _TranslatorScreenState createState() => _TranslatorScreenState();
+  State<TranslatorScreen> createState() => _TranslatorScreenState();
 }
 
 class _TranslatorScreenState extends State<TranslatorScreen> {
   final GlobalKey _translationInputKey = GlobalKey();
   bool showTranslationInput = true;
 
-  final save.SaveWordModalInterface _saveWordModalController =
-      KiwiContainer().resolve<save.SaveWordModalInterface>();
-  final AIServiceInterface _ai =
-      KiwiContainer().resolve<AIServiceInterface>();
+  final SaveWordModalInterface _saveWordModalController = KiwiContainer().resolve<SaveWordModalInterface>();
+  final AIServiceInterface _ai = KiwiContainer().resolve<AIServiceInterface>();
+  final TranslateConvRepo _convRepo = TranslateConvRepo();
 
   List<DropdownMenuItem<String>> listOfLanguages = [];
   String leftDropdown = "";
@@ -52,8 +63,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     super.initState();
 
     supportedLanguages.forEach((e) {
-      DropdownMenuItem<String> v =
-          DropdownMenuItem<String>(value: e, child: Text(e));
+      DropdownMenuItem<String> v = DropdownMenuItem<String>(value: e, child: Text(e));
       listOfLanguages.add(v);
     });
 
@@ -79,16 +89,28 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     sendAMessage(_chatTextController.text);
   }
 
-  void translate() {
-    List<conv.ChatCompletionMessage> messages = [
-      translateSysMessage,
-      conv.ChatCompletionMessage(
-        role: conv.ChatCompletionMessage.roleUser,
-        content: '$leftDropdown -> $rightDropdown, english: "${_wordTextController.text}"',
-      )
-    ];
+  void translate() async {
+    translateConv.messages!.clear();
+    List<conv.ChatCompletionMessage> copiedList = defaultMessages.map((item) => item.copy()).toList();
 
-    translateConv.messages = messages;
+    translateConv.messages!.addAll(List.from(copiedList));
+
+    conv.AIConversation? repoConv = await _convRepo.get(TranslateConvRepo.translatorConv);
+    if (repoConv != null) {
+      translateConv = repoConv;
+    }
+
+    for (var i = 0; i < translateConv.messages!.length; i++) {
+      String content = simpleStringReplace(translateConv.messages![i].content, TranslatorScreen.leftDropdownText, leftDropdown);
+      content = simpleStringReplace(content, TranslatorScreen.rightDropdownText, rightDropdown);
+      content = simpleStringReplace(content, TranslatorScreen.wordText, _wordTextController.text);
+
+      translateConv.messages![i].content = content;
+    }
+
+    conv.AIConversation what = translateConv;
+    List<conv.ChatCompletionMessage> defaultMessages1 = defaultMessages;
+
 
     askAI();
   }
@@ -111,38 +133,39 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   }
 
   void _listenToStream(Stream<String> stream) {
-      String text = "";
-      stream.listen((data) {
-        setState(() {
-          text += data;
-        });
-      }, onDone: () {
-        translateConv.messages!.add(conv.ChatCompletionMessage(
-          role: conv.ChatCompletionMessage.roleAssistant,
-          content: text,
-        ));
-      },onError: (error) {
-        log('Error: $error');
+    String text = "";
+    stream.listen((data) {
+      setState(() {
+        text += data;
       });
+    }, onDone: () {
+      translateConv.messages!.add(conv.ChatCompletionMessage(
+        role: conv.ChatCompletionMessage.roleAssistant,
+        content: text,
+      ));
+    }, onError: (error) {
+      log('Error: $error');
+    });
   }
 
   void addTextMessage(BuildContext context, String msg, bool isAIMessage) {
     setState(() {
       widget.messages.add(Message.text(text: msg, isAIMsg: isAIMessage, scrollToBottom: scrollToBottom));
       Future.delayed(const Duration(milliseconds: 100), () {
-        scrollController.animateTo(scrollController.position.maxScrollExtent,
-            duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+        scrollController.animateTo(scrollController.position.maxScrollExtent, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
       });
     });
   }
 
-  void addStreamMessage(
-      BuildContext context, Stream<String> msg, bool isAIMessage) {
+  void addStreamMessage(BuildContext context, Stream<String> msg, bool isAIMessage) {
     setState(() {
-      widget.messages.add(Message.stream(textStream: msg, isAIMsg: isAIMessage, scrollToBottom: scrollToBottom,));
+      widget.messages.add(Message.stream(
+        textStream: msg,
+        isAIMsg: isAIMessage,
+        scrollToBottom: scrollToBottom,
+      ));
       Future.delayed(const Duration(milliseconds: 100), () {
-        scrollController.animateTo(scrollController.position.maxScrollExtent,
-            duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+        scrollController.animateTo(scrollController.position.maxScrollExtent, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
       });
     });
   }
@@ -167,10 +190,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
 
   void scrollToBottom() {
     Future.delayed(const Duration(milliseconds: 10), () {
-      scrollController.animateTo(
-          scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 100),
-          curve: Curves.easeOut);
+      scrollController.animateTo(scrollController.position.maxScrollExtent, duration: const Duration(milliseconds: 100), curve: Curves.easeOut);
     });
   }
 
@@ -189,6 +209,18 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
           },
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.edit),
+            onPressed: () {
+              Navigator.pushNamed(context, CreateTranslateConvScreen.route, arguments: CreateTranslateConvScreen.mini);
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.edit),
+            onPressed: () {
+              Navigator.pushNamed(context, CreateTranslateConvScreen.route, arguments: CreateTranslateConvScreen.regular);
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () {
@@ -223,13 +255,14 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
             ),
           ),
           Flex(
-            direction: Axis.vertical,
-            // height: 100,
-            children: [ChatInput(
-              controller: _chatTextController,
-              sendAMessage: action,
-            ),]
-          ),
+              direction: Axis.vertical,
+              // height: 100,
+              children: [
+                ChatInput(
+                  controller: _chatTextController,
+                  sendAMessage: action,
+                ),
+              ]),
         ],
       ),
     );
@@ -350,8 +383,7 @@ class _TranslationInputState extends State<TranslationInput> {
                       child: ConfigurableTextField(
                         focusNode: widget.wordTextFocusNode,
                         controller: widget.wordTextController,
-                        hintText:
-                            'Word or sentence that you want to translate...',
+                        hintText: 'Word or sentence that you want to translate...',
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -362,9 +394,7 @@ class _TranslationInputState extends State<TranslationInput> {
             IconButton(
               onPressed: _toggleMinimized,
               icon: Icon(
-                _isMinimized
-                    ? Icons.keyboard_arrow_down
-                    : Icons.keyboard_arrow_up,
+                _isMinimized ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_up,
                 color: Colors.white,
                 size: 40,
               ),
@@ -413,4 +443,12 @@ class ConfigurableTextField extends StatelessWidget {
       ),
     );
   }
+}
+
+String simpleStringReplace(String input, String contextPattern, String replaceWith) {
+  if (!input.contains(contextPattern)) {
+    return input;
+  }
+
+  return input.replaceAll(contextPattern, replaceWith);
 }

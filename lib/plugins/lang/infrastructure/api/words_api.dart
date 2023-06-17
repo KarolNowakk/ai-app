@@ -5,15 +5,16 @@ import 'package:kiwi/kiwi.dart';
 class WordApiClient {
   final AuthServiceInterface _auth = KiwiContainer().resolve<AuthServiceInterface>();
   final CollectionReference<Map<String, dynamic>> _wordsCollection =
-      FirebaseFirestore.instance.collection('words');
+      FirebaseFirestore.instance.collection('new_words');
 
-  Future<List<Map<String, dynamic>>> getWordsForSRS(String lang) async {
+  Future<List<Map<String, dynamic>>> getWordsForSRS(String lang, String cat) async {
     final QuerySnapshot<Map<String, dynamic>> querySnapshot =
     await _wordsCollection
         .where('lang', isEqualTo: lang)
         .where('user_id', isEqualTo: _auth.getUser().id)
         .where('next_review', isLessThan: DateTime.now().toIso8601String())
         .where('not_srs', isEqualTo: false)
+        .where('categories', arrayContains: cat)
         .orderBy('next_review')
         .get();
 

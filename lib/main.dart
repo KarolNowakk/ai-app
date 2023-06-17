@@ -1,4 +1,6 @@
+import 'package:app2/plugins/lang/domain/exercise_structure.dart';
 import 'package:app2/plugins/lang/injection_container.dart';
+import 'package:app2/plugins/lang/interfaces/exercises_provider.dart';
 import 'package:app2/plugins/playground/injection_container.dart';
 import 'package:app2/plugins/words_lib/injection_container.dart';
 import 'package:app2/screens/auth/splash.dart';
@@ -24,69 +26,68 @@ Future main() async {
   setupSharedStuff();
   setupWordsLib();
 
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => ConversationProvider()),
-        ChangeNotifierProvider(create: (_) => PresetsProvider<PresetChat>()),
-        ChangeNotifierProvider(create: (_) => HistoryProvider()),
-      ],
-      child: MyApp(),
-    ),
-  );
-  // runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  MyApp({super.key});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: const ColorScheme(
-          brightness: Brightness.dark,
-          primary: DarkTheme.primary,
-          onPrimary: DarkTheme.primary,
-          secondary: DarkTheme.secondary,
-          onSecondary: DarkTheme.secondary,
-          background: DarkTheme.background,
-          onBackground: DarkTheme.backgroundDarker,
-          error: DarkTheme.error,
-          onError: DarkTheme.error,
-          surface: DarkTheme.textColor,
-          onSurface: DarkTheme.textColor,
-        ),
-        checkboxTheme: CheckboxThemeData(
-          fillColor: MaterialStateProperty.resolveWith<Color>(
-                (Set<MaterialState> states) {
-              if (states.contains(MaterialState.selected)) {
-                return DarkTheme.backgroundDarker;
-              }
-              return Colors.grey;
-            },
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => ConversationProvider()),
+        ChangeNotifierProvider(create: (context) => PresetsProvider<PresetChat>()),
+        ChangeNotifierProvider(create: (context) => PresetsProvider<ExerciseStructure>()),
+        ChangeNotifierProvider(create: (context) => HistoryProvider()),
+        ChangeNotifierProvider(create: (context) => ExerciseProvider(context)),
+      ],
+      child: MaterialApp(
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          colorScheme: const ColorScheme(
+            brightness: Brightness.dark,
+            primary: DarkTheme.primary,
+            onPrimary: DarkTheme.primary,
+            secondary: DarkTheme.secondary,
+            onSecondary: DarkTheme.secondary,
+            background: DarkTheme.background,
+            onBackground: DarkTheme.backgroundDarker,
+            error: DarkTheme.error,
+            onError: DarkTheme.error,
+            surface: DarkTheme.textColor,
+            onSurface: DarkTheme.textColor,
           ),
-          checkColor: MaterialStateProperty.resolveWith<Color>(
-                (Set<MaterialState> states) {
-              if (states.contains(MaterialState.selected)) {
-                return DarkTheme.textColor;
-              }
-              return Colors.white;
-            },
+          checkboxTheme: CheckboxThemeData(
+            fillColor: MaterialStateProperty.resolveWith<Color>(
+                  (Set<MaterialState> states) {
+                if (states.contains(MaterialState.selected)) {
+                  return DarkTheme.backgroundDarker;
+                }
+                return Colors.grey;
+              },
+            ),
+            checkColor: MaterialStateProperty.resolveWith<Color>(
+                  (Set<MaterialState> states) {
+                if (states.contains(MaterialState.selected)) {
+                  return DarkTheme.textColor;
+                }
+                return Colors.white;
+              },
+            ),
+            side: const BorderSide(color: DarkTheme.backgroundDarker, width: 2),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
           ),
-          side: const BorderSide(color: DarkTheme.backgroundDarker, width: 2),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+          textSelectionTheme: TextSelectionThemeData(
+            cursorColor: Colors.white,
+            selectionColor: Colors.white.withOpacity(0.5),
+            selectionHandleColor: Colors.white,
+          ),
         ),
-        textSelectionTheme: TextSelectionThemeData(
-          cursorColor: Colors.white,
-          selectionColor: Colors.white.withOpacity(0.5),
-          selectionHandleColor: Colors.white,
-        ),
+        initialRoute: '/',
+        onGenerateRoute: route,
+        home: SplashScreen(),
       ),
-      initialRoute: '/',
-      onGenerateRoute: route,
-      home: SplashScreen(),
     );
   }
 }

@@ -19,14 +19,6 @@ class SaveWordModalController implements SaveWordModalInterface{
 
     _isModalVisible = true;
   }
-
-  @override
-  void hideSaveWorldModal(BuildContext context) {
-    if (_isModalVisible) {
-      Navigator.pop(context);
-      _isModalVisible = false;
-    }
-  }
 }
 
 class SaveWordModal extends StatelessWidget {

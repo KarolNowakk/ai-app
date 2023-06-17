@@ -23,13 +23,10 @@ class PresetsProvider<T extends Preset> with ChangeNotifier {
   void resetCurrent() {
     _currentItem = null;
     _indexUpdating = -1;
-
-    notifyListeners();
   }
 
   void resetAll() {
     _items.clear();
-    notifyListeners();
   }
 
   void loadItems() async {
@@ -58,7 +55,7 @@ class PresetsProvider<T extends Preset> with ChangeNotifier {
     _repo.add(item);
     _currentItem = item;
 
-    _indexUpdating = -1;
+    _indexUpdating = _findItemIndexById(item.id);
     notifyListeners();
   }
 
@@ -67,5 +64,9 @@ class PresetsProvider<T extends Preset> with ChangeNotifier {
     _repo.delete(preset);
     _items.removeAt(index);
     notifyListeners();
+  }
+
+  int _findItemIndexById(String id) {
+    return _items.indexWhere((element) => element.id == id);
   }
 }

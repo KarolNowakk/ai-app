@@ -26,11 +26,17 @@ class SpeechToText implements SpeechToTextInterface {
     }
     log('File path: ${file.path}');
 
+    String? lang;
+    if (_config.getEntry(sttLanguageKey) != "") {
+      lang = languagesISO[_config.getEntry(sttLanguageKey)];
+    }
+
     try {
       OpenAIAudioModel transcription = await OpenAI.instance.audio.createTranscription(
         file: file,
         model: "whisper-1",
         responseFormat: OpenAIAudioResponseFormat.json,
+        language: lang,
       );
 
       log('Transcription: ${transcription.text}');
@@ -42,5 +48,15 @@ class SpeechToText implements SpeechToTextInterface {
     }
   }
 }
+
+Map<String, String> languagesISO = {
+  'polish': 'pl',
+  'german': 'de',
+  'english': 'en',
+  'spanish': 'es',
+  'italian': 'it',
+  'portuguese': 'pt',
+  'french': 'fr',
+};
 
 

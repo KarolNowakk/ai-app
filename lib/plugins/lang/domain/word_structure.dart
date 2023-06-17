@@ -18,6 +18,7 @@ class WordData {
   static const String descriptionJson = 'description';
   static const String langJson = 'lang';
   static const String notSRSJson = 'not_srs';
+  static const String categoriesJson = 'categories';
 
   String id;
   String word;
@@ -28,6 +29,7 @@ class WordData {
   String description;
   String lang;
   bool notSRS;
+  List<String> categories;
 
   WordData({
     required this.id,
@@ -39,6 +41,7 @@ class WordData {
     required this.description,
     required this.lang,
     required this.notSRS,
+    required this.categories,
   });
 
   static WordData createNewWordData(String word, description, lang) {
@@ -55,6 +58,7 @@ class WordData {
       description: description,
       lang: lang,
       notSRS: false,
+      categories: ["My own"]
     );
   }
 
@@ -68,6 +72,7 @@ class WordData {
     descriptionJson: description,
     langJson: lang,
     notSRSJson: notSRS,
+    categoriesJson: categories,
   };
 
   factory WordData.fromJson(Map<String, dynamic> json) {
@@ -81,6 +86,7 @@ class WordData {
       description: json[descriptionJson] ?? "",
       lang: json[langJson],
       notSRS: json[notSRSJson],
+      categories: List<String>.from(json[categoriesJson]),
     );
   }
 

@@ -7,8 +7,6 @@ abstract class Preset {
 
   Preset({this.id = "", this.title = ""});
 
-  // String collectionName();
-
   Map<String, dynamic> toJson() {
     return {jsonId: id, jsonTitle: title};
   }

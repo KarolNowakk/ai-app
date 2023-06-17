@@ -1,3 +1,5 @@
+import 'package:app2/plugins/lang/application/categories_repo.dart';
+import 'package:app2/plugins/lang/infrastructure/categories_repo.dart';
 import 'package:app2/shared/auth/application/service.dart';
 import 'package:app2/shared/auth/domain/service.dart';
 import 'package:app2/shared/conversation/domain/preset_chat.dart';
@@ -22,6 +24,7 @@ void setupSharedStuff() {
 
   container.registerSingleton<PresetsRepoInterface<PresetChat>>((c)
     => PresetsRepo<PresetChat>(fromJson: PresetChat.fromJson, collectionName: PresetChat.collectionName()));
+  container.registerSingleton<CategoriesRepoInterface>((c) => CategoriesRepo());
 
   container.registerInstance(ConvHistoryApiClient());
   container.registerSingleton<ConvHistoryRepoInterface>((c) => ConvHistoryRepo());

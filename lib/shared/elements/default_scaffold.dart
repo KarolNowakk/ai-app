@@ -4,10 +4,14 @@ class DefaultScaffold extends StatelessWidget {
   List<Widget>? actions;
   Widget body;
   Widget? drawer;
+  Widget? floatingButton;
+  String? title;
 
   DefaultScaffold({super.key,
     this.actions,
+    this.title,
     this.drawer,
+    this.floatingButton,
     required this.body,
   });
 
@@ -16,6 +20,7 @@ class DefaultScaffold extends StatelessWidget {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
+        title: Text(title ?? ""),
         backgroundColor: Theme.of(context).colorScheme.background,
         elevation: 0.0,
         shadowColor: Colors.transparent,
@@ -29,6 +34,7 @@ class DefaultScaffold extends StatelessWidget {
       ),
       endDrawer: drawer,
       body: body,
+      floatingActionButton: floatingButton,
     );
   }
 }

@@ -41,6 +41,7 @@ class ConversationProvider with ChangeNotifier {
     _messages.clear();
     _messages.addAll(conversation.messages!);
     _presetId = presetId;
+    _historyId = "";
     notifyListeners();
   }
 
@@ -58,7 +59,7 @@ class ConversationProvider with ChangeNotifier {
     _messages.add(ChatCompletionMessage(role: role, content: content));
     _askAI();
 
-    saveConvToHistory();
+    _saveConvToHistory();
     notifyListeners();
   }
 
@@ -92,7 +93,7 @@ class ConversationProvider with ChangeNotifier {
       _isCurrentlyStreaming = false;
       _addStreamMessage(content);
 
-      saveConvToHistory();
+      _saveConvToHistory();
     }, onError: (error) {
       _isCurrentlyStreaming = false;
       log('Error: $error');
@@ -110,7 +111,7 @@ class ConversationProvider with ChangeNotifier {
     ));
   }
 
-  void saveConvToHistory() {
+  void _saveConvToHistory() {
     if (_presetId == "") return;
 
     if (_historyId == "") {

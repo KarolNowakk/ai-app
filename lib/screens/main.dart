@@ -1,7 +1,7 @@
+import 'package:app2/plugins/image_to_text/screens/main.dart';
 import 'package:app2/plugins/lang/application/config.dart';
-import 'package:app2/plugins/playground/screens/main.dart';
+import 'package:app2/plugins/lang/screens/exercise/selector.dart';
 import 'package:app2/plugins/words_lib/screens/lang_select.dart';
-import 'package:app2/shared/conversation/screens/chat/main_chat.dart';
 import 'package:app2/shared/conversation/screens/presets/select_screen.dart';
 import 'package:app2/theme.dart';
 import 'package:flutter/material.dart';
@@ -69,15 +69,15 @@ class _ExerciseHomeScreenState extends State<ExerciseHomeScreen> {
       ),
       body: Container(
         color: Theme.of(context).colorScheme.background,
-        child: Center(
+        child: const Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Row(
-                children: const [
+                children: [
                   Expanded(
                     child: OptionButton(
-                      route: '/exercise_selector',
+                      route: ExerciseSelectorScreen.route,
                       text: 'Language Exercises',
                       icon: Icon(
                         Icons.school_outlined,
@@ -100,11 +100,11 @@ class _ExerciseHomeScreenState extends State<ExerciseHomeScreen> {
                 ],
               ),
               Row(
-                children: const [
+                children: [
                   Expanded(
                     child: OptionButton(
-                      route: LangSelectorScreen.route,
-                      text: 'Words Library',
+                      route: LiveTextTranslation.route,
+                      text: 'Live text translation',
                       icon: Icon(
                         Icons.list_alt_rounded,
                         color: DarkTheme.textColor,
@@ -112,21 +112,6 @@ class _ExerciseHomeScreenState extends State<ExerciseHomeScreen> {
                       ),
                     ),
                   ),
-                  Expanded(
-                    child: OptionButton(
-                      route: PlaygroundScreen.route,
-                      text: 'Playground',
-                      icon: Icon(
-                        Icons.child_care,
-                        color: DarkTheme.textColor,
-                        size: 70,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                children: const [
                   Expanded(
                     child: OptionButton(
                       route: PresetsSelectorScreen.route,

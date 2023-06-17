@@ -1,3 +1,4 @@
+import 'package:app2/shared/audio_app/change_lang_modal.dart';
 import 'package:app2/shared/audio_app/recorder.dart';
 import 'package:app2/shared/audio_app/speech_to_text.dart';
 import 'package:app2/theme.dart';
@@ -7,13 +8,13 @@ import 'package:kiwi/kiwi.dart';
 class RecordButton extends StatefulWidget {
   final Function(String) getTranscribedText;
   final AudioRecorderInterface _audioR = KiwiContainer().resolve<AudioRecorderInterface>();
-
   final SpeechToTextInterface _speechToText = KiwiContainer().resolve<SpeechToTextInterface>();
+  final ChangeSTTLanguageModalController _modal = ChangeSTTLanguageModalController();
 
   RecordButton({super.key, required this.getTranscribedText});
 
   @override
-  _RecordButtonState createState() => _RecordButtonState();
+  State<RecordButton> createState() => _RecordButtonState();
 }
 
 class _RecordButtonState extends State<RecordButton>
@@ -74,6 +75,9 @@ class _RecordButtonState extends State<RecordButton>
       ),
       onPressed: () {
         recordOrStopRecording();
+      },
+      onLongPress: () {
+        widget._modal.showQuickTranslateModal(context);
       },
       child: AnimatedBuilder(
         animation: _sizeAnimation,

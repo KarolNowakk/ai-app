@@ -3,15 +3,20 @@ import 'dart:collection';
 import '../domain/word_structure.dart';
 import 'package:flutter/material.dart';
 
+class NextWordResult {
+  final List<WordData> list;
+  final WordData? word;
+
+  NextWordResult({required this.list, required this.word});
+}
+
 abstract class RateWordModalInterface {
   Future<void> show(BuildContext context, WordData data);
 }
 
 abstract class SRSAlgInterface {
-  void setAll(List<WordData> list);
-  WordData? getNextWord();
+  NextWordResult getNextWord(List<WordData> list);
   WordData updateWordData(WordData wordData, int quality);
-  int remainingWords();
 }
 
 class SRSAlg implements SRSAlgInterface {
@@ -26,29 +31,23 @@ class SRSAlg implements SRSAlgInterface {
   );
 
   @override
-  void setAll(List<WordData> list) {
-    _reviewQueue.addAll(list);
-  }
+  NextWordResult getNextWord(List<WordData> wordList) {
+    List<WordData> list = List.from(wordList);
 
-  @override
-  int remainingWords() {
-    return _reviewQueue.length;
-  }
-
-  @override
-  WordData? getNextWord() {
-    if (_reviewQueue.isEmpty) return null;
+    list.sort((a, b) => a.nextReview.compareTo(b.nextReview));
 
     DateTime currentTime = DateTime.now();
-    WordData wordData = _reviewQueue.first;
+    WordData wordData = list.first;
 
     if (currentTime.isAfter(wordData.nextReview)) {
-      _reviewQueue.remove(wordData);
-      return wordData;
+      list.removeAt(0);
+
+      return NextWordResult(list: list, word: wordData);
     }
 
-    return null;
+    return NextWordResult(list: list, word: null);
   }
+
 
   @override
   WordData updateWordData(WordData wordData, int quality) {
@@ -79,6 +78,7 @@ class SRSAlg implements SRSAlgInterface {
       description: wordData.description,
       lang: wordData.lang,
       notSRS: wordData.notSRS,
+      categories: wordData.categories,
     );
   }
 }

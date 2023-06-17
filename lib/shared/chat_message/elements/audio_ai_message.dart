@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:kiwi/kiwi.dart';
 import 'dart:developer';
 
-class AudioAIMessage extends StatefulWidget implements ChatMessageInterface {
+class AudioAIMessage extends StatefulWidget {
   final TextToSpeechInterface _tts = KiwiContainer().resolve<TextToSpeechInterface>();
   bool _isPlaying = false;
 
@@ -15,25 +15,14 @@ class AudioAIMessage extends StatefulWidget implements ChatMessageInterface {
   final Function()scrollToBottom;
   bool isStreamDone = false;
 
-  @override
-  String getRole() {
-    return ChatCompletionMessage.roleAssistant;
-  }
-
-  @override
-  String getContent() {
-    return displayText;
-  }
-
-  AudioAIMessage(
-      {super.key, required this.textStream, required this.scrollToBottom});
+  AudioAIMessage({super.key, required this.textStream, required this.scrollToBottom});
 
   AudioAIMessage.withoutStream({super.key, required this.displayText, required this.scrollToBottom})
         : textStream = null,
           isStreamDone = true;
 
   @override
-  _AudioAIMessageState createState() => _AudioAIMessageState();
+  State<AudioAIMessage> createState() => _AudioAIMessageState();
 }
 
 class _AudioAIMessageState extends State<AudioAIMessage> {

@@ -12,23 +12,23 @@ import 'package:app2/shared/elements/infinity_button.dart';
 import 'package:kiwi/kiwi.dart';
 
 class DefaultAIConvCreateScreen extends StatefulWidget {
-  final AIServiceInterface _service =
-      KiwiContainer().resolve<AIServiceInterface>();
+  final AIServiceInterface _service = KiwiContainer().resolve<AIServiceInterface>();
   static const String route = "/playground";
   final AIConversation? defaultConv;
   final Function(AIConversation conv) action;
   List<Widget> additionalElements;
+  String? title;
 
   DefaultAIConvCreateScreen(
       {super.key,
       this.defaultConv,
+      this.title,
       required this.action,
       List<Widget>? additionalElements})
       : additionalElements = additionalElements ?? [];
 
   @override
-  _DefaultAIConvCreateScreenState createState() =>
-      _DefaultAIConvCreateScreenState();
+  State<DefaultAIConvCreateScreen> createState() => _DefaultAIConvCreateScreenState();
 }
 
 class _DefaultAIConvCreateScreenState extends State<DefaultAIConvCreateScreen> {
@@ -152,6 +152,7 @@ class _DefaultAIConvCreateScreenState extends State<DefaultAIConvCreateScreen> {
   @override
   Widget build(BuildContext context) {
     return DefaultScaffold(
+      title: widget.title,
       actions: [
         Builder(
           builder: (context) => IconButton(

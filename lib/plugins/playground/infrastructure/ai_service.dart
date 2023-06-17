@@ -21,14 +21,6 @@ class AIService implements AIServiceInterface{
       messages: mapMessageListToChatModelList(conv.messages!),
     );
 
-
-    // log("------------------ ai_service -----------------");
-    // conv.messages!.forEach((element) {
-      log(conv.model!);
-    //   log('TopP: ${conv.topP.toString()}');
-    //   log('Temp: ${conv.temperature.toString()}');
-    // });
-
     StreamController<String> listUpdateController = StreamController<String>.broadcast();
 
     chatCompletion.listen((chatStreamEvent) {

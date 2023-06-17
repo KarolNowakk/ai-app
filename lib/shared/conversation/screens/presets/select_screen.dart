@@ -36,6 +36,7 @@ class _PresetsSelectorScreenState extends State<PresetsSelectorScreen> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: Theme.of(context).colorScheme.primary,
         onPressed: () {
+          context.read<PresetsProvider<PresetChat>>().setIndexToUpdate(-1);
           Navigator.pushNamed(context, CreatePresetScreen.route);
         },
         child: const Icon(Icons.add),
@@ -80,7 +81,7 @@ class _PresetsSelectorScreenState extends State<PresetsSelectorScreen> {
                 onTap: () {
                   context.read<PresetsProvider<PresetChat>>().setIndexToUpdate(-1);
                   context.read<ConversationProvider>().setConversation(item.id, item.conv);
-                    Navigator.pushNamed(context, BasicConversationScreen.route);
+                  Navigator.pushNamed(context, BasicConversationScreen.route);
                 },
                 child: Padding(
                   padding: const EdgeInsets.all(15.0),

@@ -4,12 +4,6 @@ import 'package:app2/theme.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer';
 
-abstract class SaveWordModalInterface {
-  void showSaveWordModal(BuildContext context, String text);
-
-  void hideSaveWorldModal(BuildContext context);
-}
-
 class Message extends StatefulWidget implements ChatMessageInterface{
   final String? text;
   String displayText = "";
@@ -50,7 +44,7 @@ class _MessageState extends State<Message> {
   void initState() {
     super.initState();
     color = widget.isAIMsg
-        ? DarkTheme.primary // TODO: figure out why there is an error accessing Theme.of
+        ? DarkTheme.primary
         : DarkTheme.secondary;
     margin = widget.isAIMsg
         ? const EdgeInsets.only(left: 10, top: 8, right: 70, bottom: 0)
