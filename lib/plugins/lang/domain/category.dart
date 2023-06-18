@@ -2,14 +2,16 @@ class Category {
   String id;
   String name;
   String lang;
+  bool isUserCreated;
 
-  Category({required this.name, required this.lang, required this.id});
+  Category({required this.name, required this.lang, required this.id, required this.isUserCreated});
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
       'name': name,
       'lang': lang,
+      'is_user_created': isUserCreated,
     };
   }
 
@@ -18,6 +20,7 @@ class Category {
       id: json['id'],
       name: json['name'],
       lang: json['lang'],
+      isUserCreated: json['is_user_created'] ?? false,
     );
   }
 }

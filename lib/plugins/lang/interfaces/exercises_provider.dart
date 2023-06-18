@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:app2/plugins/lang/application/categories_repo.dart';
 import 'package:app2/plugins/lang/application/srs_alg.dart';
 import 'package:app2/plugins/lang/application/words_repo.dart';
@@ -22,6 +21,7 @@ class ExerciseProvider with ChangeNotifier {
   final List<WordData> _wordListNotRemovable = []; // used to search for words in translations
   final List<WordData> _wordsToEvaluate = [];
   final List<Category> _catList = [];
+  bool getAllWords = false;
 
   ExerciseStructure? _exe;
 
@@ -35,6 +35,9 @@ class ExerciseProvider with ChangeNotifier {
   List<WordData> currentWords() => _wordListNotRemovable;
 
   List<String> get categoryList => _catList.map((category) => category.name).toList();
+
+  List<Category> get userCreatedCategories =>
+      _catList.where((category) => category.isUserCreated).toList();
 
   void reset() {
     _wordList.clear();
@@ -60,7 +63,7 @@ class ExerciseProvider with ChangeNotifier {
       });
     }
 
-    _wordsRepo.getByLangAndCategory(exe.lang, "My own").then((list) {
+    _wordsRepo.getByLangAndCategory(exe.lang, "My own", getAll: getAllWords).then((list) {
       _updateWordsList(list);
       _wordListNotRemovable.clear();
       _wordListNotRemovable.addAll(list);
@@ -74,7 +77,7 @@ class ExerciseProvider with ChangeNotifier {
   }
 
   void loadNewWords(String category) {
-    _wordsRepo.getByLangAndCategory(_exe!.lang, category).then((list) {
+    _wordsRepo.getByLangAndCategory(_exe!.lang, category, getAll: getAllWords).then((list) {
       _updateWordsList(list);
       _wordListNotRemovable.clear();
       _wordListNotRemovable.addAll(list);

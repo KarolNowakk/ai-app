@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:app2/shared/file_manager/infrastructure/manager.dart';
 import 'package:app2/plugins/lang/application/config.dart';
-import 'package:dart_openai/openai.dart';
+import "package:dart_openai/dart_openai.dart";
 import 'package:kiwi/kiwi.dart';
 
 abstract class SpeechToTextInterface {

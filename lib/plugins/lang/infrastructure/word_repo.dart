@@ -8,8 +8,15 @@ class WordRepo implements WordsRepoInterface{
   final WordApiClient _api = KiwiContainer().resolve<WordApiClient>();
 
   @override
-  Future<List<WordData>> getByLangAndCategory(String lang, String cat) async {
-    List<Map<String, dynamic>> rawList = await _api.getWordsForSRS(lang, cat);
+  Future<List<WordData>> getByLangAndCategory(String lang, String cat, {getAll = false}) async {
+    List<Map<String, dynamic>> rawList;
+
+    if (getAll) {
+      rawList = await _api.getAllWordsByLangAndCat(lang, cat);
+    } else {
+      rawList = await _api.getWordsForSRS(lang, cat);
+    }
+
     List<WordData> wordsList = rawList.map((exercise) => WordData.fromJson(exercise)).toList();
 
     return wordsList;
@@ -33,5 +40,10 @@ class WordRepo implements WordsRepoInterface{
   Future<void> updateWordDataInList(WordData updatedWordData) async {
       Map<String, dynamic> wordData = updatedWordData.toJson();
       _api.updateWord(wordData);
+  }
+
+  @override
+  Future<void> updateCategories(WordData data) async {
+    _api.updateCategories(data.toJson());
   }
 }

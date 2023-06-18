@@ -26,7 +26,7 @@ class _CategorySelectorState extends State<CategorySelector> {
         padding: const EdgeInsets.only(
           top: 5,
           bottom: 5,
-          left: 50,
+          left: 5,
         ),
         child: DropdownSearch<String>(
             items: context.watch<ExerciseProvider>().categoryList,

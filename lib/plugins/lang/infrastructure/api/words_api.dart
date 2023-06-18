@@ -1,5 +1,6 @@
 import 'package:app2/shared/auth/domain/service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:http/http.dart';
 import 'package:kiwi/kiwi.dart';
 
 class WordApiClient {
@@ -13,6 +14,21 @@ class WordApiClient {
         .where('lang', isEqualTo: lang)
         .where('user_id', isEqualTo: _auth.getUser().id)
         .where('next_review', isLessThan: DateTime.now().toIso8601String())
+        .where('not_srs', isEqualTo: false)
+        .where('categories', arrayContains: cat)
+        .orderBy('next_review')
+        .get();
+
+    return querySnapshot.docs
+        .map((doc) => doc.data()..addAll({'id': doc.id}))
+        .toList();
+  }
+
+  Future<List<Map<String, dynamic>>> getAllWordsByLangAndCat(String lang, String cat) async {
+    final QuerySnapshot<Map<String, dynamic>> querySnapshot =
+    await _wordsCollection
+        .where('lang', isEqualTo: lang)
+        .where('user_id', isEqualTo: _auth.getUser().id)
         .where('not_srs', isEqualTo: false)
         .where('categories', arrayContains: cat)
         .orderBy('next_review')
@@ -52,5 +68,11 @@ class WordApiClient {
 
   Future<void> deleteWord(String wordId) async {
     await _wordsCollection.doc(wordId).delete();
+  }
+
+  Future<void> updateCategories(Map<String, dynamic> data) async {
+    _wordsCollection.doc(data['id']).update({
+      "categories": data['categories'],
+    });
   }
 }

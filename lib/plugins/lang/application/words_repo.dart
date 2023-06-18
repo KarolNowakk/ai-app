@@ -6,8 +6,9 @@ abstract class SaveWordModalInterface {
 }
 
 abstract class WordsRepoInterface {
-  Future<List<WordData>> getByLangAndCategory(String lang, String cat);
+  Future<List<WordData>> getByLangAndCategory(String lang, String cat, {getAll = false});
   Future<void> addWordDataToList(WordData word);
   Future<void> updateWordDataInList(WordData updatedWordData);
   Future<List<WordData>> getByIds(List<String> listIds);
+  Future<void> updateCategories(WordData data);
 }

@@ -3,7 +3,7 @@ import "dart:developer";
 import "package:app2/plugins/lang/application/config.dart";
 import 'package:app2/shared/conversation/domain/ai_service.dart';
 import 'package:app2/shared/conversation/domain/conversation.dart';
-import "package:dart_openai/openai.dart";
+import "package:dart_openai/dart_openai.dart";
 import "package:kiwi/kiwi.dart";
 
 class AIService implements AIServiceInterface{
